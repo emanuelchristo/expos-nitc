@@ -52,4 +52,12 @@ PTLR = 10;
 [76*512] = [65 * 512 + 1];
 SP = 8*512;
 
+// User area page of PID 0
+[PROCESS_TABLE + 11] = 80;
+// Setting PID
+[PROCESS_TABLE + 1] = 0;
+
+// Current process ID
+[SYSTEM_STATUS_TABLE + 1] = 0;
+
 ireturn;
