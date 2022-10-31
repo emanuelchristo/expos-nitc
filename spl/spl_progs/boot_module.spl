@@ -1,0 +1,68 @@
+
+// Loading library
+loadi(63,13);
+loadi(64,14);
+
+// Loading init program
+loadi(65,7);
+loadi(66,8);
+
+// Loading INT7 module
+loadi(16,29);
+loadi(17,30);
+
+// Loading INT10 module
+loadi(22,35);
+loadi(23,36);
+
+// Loading exception handler
+loadi(2, 15);
+loadi(3, 16);
+
+// Loading timer interrupt handler
+loadi(4, 17);
+loadi(5, 18);
+
+// SETTING UP INIT PROCESS
+// Page table setup
+// Library
+[PAGE_TABLE_BASE+20] = 63;
+[PAGE_TABLE_BASE+21] = "0100";
+[PAGE_TABLE_BASE+22] = 64;
+[PAGE_TABLE_BASE+23] = "0100";
+
+// Heap
+[PAGE_TABLE_BASE+24] = 78;
+[PAGE_TABLE_BASE+25] = "0110";
+[PAGE_TABLE_BASE+26] = 79;
+[PAGE_TABLE_BASE+27] = "0110";
+
+// Code
+[PAGE_TABLE_BASE+28] = 65;
+[PAGE_TABLE_BASE+29] = "0100";
+[PAGE_TABLE_BASE+30] = 66;
+[PAGE_TABLE_BASE+31] = "0100";
+[PAGE_TABLE_BASE+32] = -1;
+[PAGE_TABLE_BASE+33] = "0000";
+[PAGE_TABLE_BASE+34] = -1;
+[PAGE_TABLE_BASE+35] = "0000";
+
+// Stack
+[PAGE_TABLE_BASE+36] = 76;
+[PAGE_TABLE_BASE+37] = "0110";
+[PAGE_TABLE_BASE+38] = 77;
+[PAGE_TABLE_BASE+39] = "0110";
+
+// Process table setup for init process
+[PROCESS_TABLE + 17] = 1;
+[PROCESS_TABLE + 20] = CREATED;
+[PROCESS_TABLE + 27] = 80;
+[PROCESS_TABLE + 28] = 0;
+[PROCESS_TABLE + 29] = 8*512;
+[PROCESS_TABLE + 30] = PAGE_TABLE_BASE + 20;
+[PROCESS_TABLE + 31] = 10;
+
+// Set entry point IP value from header of INIT process to top of user stack
+[76 * 512] = [65*512 + 1];
+
+return;

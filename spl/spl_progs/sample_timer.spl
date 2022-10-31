@@ -1,4 +1,3 @@
-breakpoint;
 print "TIMER";
 // Save user stack pointer to process table entry
 [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 13] = SP;
@@ -27,6 +26,7 @@ else
     newPID = 0;
 endif;
 
+
 alias new_process_table R3;
 new_process_table = PROCESS_TABLE + newPID * 16;
 
@@ -37,12 +37,14 @@ PTLR = [new_process_table + 15];
 
 [SYSTEM_STATUS_TABLE + 1] = newPID;
 
+
 if([new_process_table + 4] == CREATED) then
     [new_process_table + 4] = RUNNING;
     SP = [new_process_table + 13];
-    breakpoint;
     ireturn;
 endif;
+
+
 
 [new_process_table + 4] = RUNNING;
 
@@ -50,5 +52,4 @@ restore;
 
 SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 13];
 
-breakpoint;
 ireturn;
