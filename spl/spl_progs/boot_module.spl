@@ -25,6 +25,10 @@ loadi(3, 16);
 loadi(4, 17);
 loadi(5, 18);
 
+// Loading scheduler module
+loadi(50,63);
+loadi(51,64);
+
 // SETTING UP INIT PROCESS
 // Page table setup
 // Library
@@ -113,5 +117,14 @@ temp = PROCESS_TABLE + 32;
 
 // Set entry point IP value from header of INIT process to top of user stack
 [87 * 512] = [85*512 + 1];
+
+// Setting all other processes to terminated
+alias i R1;
+i = 3;
+while (i < MAX_PROC_NUM) do
+  temp = PROCESS_TABLE + i*16;
+  [temp + 4] = TERMINATED;
+  i = i + 1;
+endwhile;
 
 return;

@@ -8,6 +8,7 @@ loadi(70, 12);
 
 SP = 82*512 - 1;
 
+
 call BOOT_MODULE;
 
 // SETTING UP IDLE PROCESS
@@ -60,6 +61,7 @@ PTLR = 10;
 [81 * 512] = [69*512 + 1];
 
 SP = 8*512;
+
 
 ireturn;
 
