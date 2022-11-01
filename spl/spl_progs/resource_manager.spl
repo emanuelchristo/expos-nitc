@@ -1,0 +1,39 @@
+// ACQUIRE TERMINAL
+if (R1 == 8) then
+  // Terminal in use
+  if([TERMINAL_STATUS_TABLE + 0] == 1) then
+    alias currentPID R2;
+    alias process_table_entry R0;
+    currentPID = [SYSTEM_STATUS_TABLE + 1];
+    process_table_entry = PROCESS_TABLE + currentPID*16;
+    [process_table_entry + 4] = WAIT_TERMINAL;
+    multipush(R0, R1, R2, R3);
+    call MOD_5;
+    multipop(R0, R1, R2, R3);
+  endif;
+  [TERMINAL_STATUS_TABLE + 0] = 1;
+  [TERMINAL_STATUS_TABLE + 1] = [SYSTEM_STATUS_TABLE + 1];
+  return;
+endif;
+
+// RELEASE TERMINAL
+if (R1 == 9) then
+  // Checking if process requesting release is the same process who has the terminal
+  if ([TERMINAL_STATUS_TABLE + 1] != [SYSTEM_STATUS_TABLE + 1]) then
+    R0 = -1;
+    return;
+  endif;
+  [TERMINAL_STATUS_TABLE + 0] = 0;
+
+  alias i R5;
+  i = 0;
+  while (i < MAX_PROC_NUM) do
+    if([PROCESS_TABLE + i*16 + 1] != -1 && [PROCESS_TABLE + i*16 + 4] == WAIT_TERMINAL) then
+      [PROCESS_TABLE + i*16 + 4] = READY;
+    endif;
+    i = i + 1;
+  endwhile;
+
+  R0 = 0;
+  return;
+endif;
