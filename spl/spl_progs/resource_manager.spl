@@ -13,6 +13,7 @@ if (R1 == 8) then
   endif;
   [TERMINAL_STATUS_TABLE + 0] = 1;
   [TERMINAL_STATUS_TABLE + 1] = [SYSTEM_STATUS_TABLE + 1];
+  breakpoint;
   return;
 endif;
 
@@ -35,5 +36,6 @@ if (R1 == 9) then
   endwhile;
 
   R0 = 0;
+  breakpoint;
   return;
 endif;
