@@ -1,0 +1,48 @@
+// INT 7 - WRITE
+
+// Setting mode flag of current process to system call number
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 5;
+
+// Save user stack pointer to process table entry
+[PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 13] = SP;
+
+// Set SP to kernel stack
+SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512 - 1;
+
+backup;
+
+alias userSP R0;
+userSP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 13];
+
+alias fileDescriptor R1;
+fileDescriptor = [[PTBR + 2*((userSP-4)/512)]*512 + (userSP-4)%512];
+
+
+alias physicalAddrRetVal R2;
+physicalAddrRetVal = [PTBR + 2*((userSP-1)/512)]*512 + (userSP-1)%512;
+// fileDescriptor not valid
+if (fileDescriptor != -2) 
+then
+// Setting return value to -1
+  [physicalAddrRetVal] = -1;
+else
+  // Printing the output
+  multipush(R0, R1, R2);
+  R1 = 3;
+  R2 = [SYSTEM_STATUS_TABLE + 1];
+  R3 = [[PTBR + 2*((userSP-3)/512)]*512 + (userSP-3)%512];
+  call MOD_4;
+  multipop(R0, R1, R2);
+  [physicalAddrRetVal] = 0;
+endif;
+
+restore;
+
+
+// Setting SP to user stack
+SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 13];
+
+// Setting mode flag to 0
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
+
+ireturn;
