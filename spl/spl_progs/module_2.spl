@@ -27,13 +27,14 @@ if(functionNum == 1) then
       [MEMORY_FREE_LIST + R0] = 1;
       break;
     endif;
+    R0 = R0 + 1;
   endwhile;
 
   return;
 endif;
 
 // Release page
-if(functionNum == 1) then
+if(functionNum == 2) then
   [MEMORY_FREE_LIST + R2] = [MEMORY_FREE_LIST + R2] - 1;
   if([MEMORY_FREE_LIST + R2] == 0) then
     [SYSTEM_STATUS_TABLE + 2] = [SYSTEM_STATUS_TABLE + 2] + 1;

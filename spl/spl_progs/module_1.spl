@@ -27,6 +27,7 @@ if(functionNum == 3) then
   call MOD_1;
   multipop(R0, R1, R2);
 
+
   // Freeing user area page
   multipush(R0, R1, R2);
   R1 = 2;

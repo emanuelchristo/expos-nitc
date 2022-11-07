@@ -7,7 +7,7 @@ int main() {
 		i = 1;
 		while(i <= 100) do
 			temp = i % 2;
-			if(temp != 0) then
+			if(temp == 0) then
 				write(i);
 			endif;
 			i = i + 1;
