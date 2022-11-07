@@ -42,6 +42,8 @@ echo "COMPILING: primes.expl"
 ./expl ./expl_progs/primes.expl
 echo "COMPILING: gcd.expl"
 ./expl ./expl_progs/gcd.expl
+echo "COMPILING: bbl_srt.expl"
+./expl ./expl_progs/bbl_srt.expl
 
 
 # LOADING KERNEL PROGRAMS ----------------------------
@@ -82,7 +84,7 @@ echo "LOADING: library.lib"
 echo "LOADING: idle.xsm"
 ./xfs-interface load --idle ../expl/expl_progs/idle.xsm
 echo "LOADING: gcd.xsm"
-./xfs-interface load --init ../expl/expl_progs/gcd.xsm
+./xfs-interface load --init ../expl/expl_progs/bbl_srt.xsm
 echo "LOADING: even_num.xsm"
 ./xfs-interface load --exec ../expl/expl_progs/even_num.xsm
 echo "LOADING: primes.xsm"

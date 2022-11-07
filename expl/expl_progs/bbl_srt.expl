@@ -1,0 +1,40 @@
+decl
+  int n, arr[50], i, j, temp;
+enddecl
+
+int main() {
+  begin
+  write("BUBBLE SORT");
+  write("No. of inputs: ");
+  read(n);
+  write("Enter inputs");
+  i = 0;
+  while(i < n) do
+    read(arr[i]);
+    i = i + 1;
+  endwhile;
+
+  i = 0;
+  while(i < (n-1)) do
+    j = 0;
+    while(j < (n-i-1)) do
+      if(arr[j] > arr[j+1]) then
+        temp = arr[j];
+        arr[j] = arr[j+1];
+        arr[j+1] = temp;
+      endif;
+      j = j + 1;
+    endwhile;
+    i = i + 1;
+  endwhile;
+
+  write("Sorted array:");
+  i = 0;
+  while(i < n) do
+    write(arr[i]);
+    i = i + 1;
+  endwhile;
+
+  return 0;
+  end
+}
