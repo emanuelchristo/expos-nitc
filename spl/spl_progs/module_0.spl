@@ -15,14 +15,13 @@ if (R1 == 8) then
   endif;
   [TERMINAL_STATUS_TABLE + 0] = 1;
   [TERMINAL_STATUS_TABLE + 1] = [SYSTEM_STATUS_TABLE + 1];
-  breakpoint;
   return;
 endif;
 
 // RELEASE TERMINAL
 if (R1 == 9) then
   // Checking if process requesting release is the same process who has the terminal
-  if ([TERMINAL_STATUS_TABLE + 1] != [SYSTEM_STATUS_TABLE + 1]) then
+  if ([TERMINAL_STATUS_TABLE + 1] != R2) then
     R0 = -1;
     return;
   endif;
@@ -38,6 +37,5 @@ if (R1 == 9) then
   endwhile;
 
   R0 = 0;
-  breakpoint;
   return;
 endif;

@@ -1,0 +1,37 @@
+int main() {
+  decl
+    int a, b;
+    int factor;
+    int temp1, temp2;
+    int gcd;
+  enddecl
+
+  begin
+    write("GCD FINDER");
+    write("Num 1: ");
+    read(a);
+    write("Num 2: ");
+    read(b);
+
+    if(a < b) then
+      factor = a;
+    else
+      factor = b;
+    endif;
+    
+    gcd = 1;
+    while(factor >= 1) do
+      temp1 = a % factor;
+      temp2 = b % factor;
+      if(temp1 == 0 AND temp2 == 0) then
+        gcd = factor;
+        break;
+      endif;
+      factor = factor - 1;
+    endwhile;
+
+    write("GCD is: ");
+    write(gcd);
+    return 0;
+  end
+}

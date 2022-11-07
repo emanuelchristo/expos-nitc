@@ -3,22 +3,50 @@
 alias functionNum R1;
 alias currentPID R2;
 
-if(functionNum != 3) then
-  return;
+if(functionNum == 3) then
+	// Acquring terminal
+	multipush(R1, R2, R3);
+	R1 = 8;
+	R2 = currentPID;
+	call MOD_0;
+	multipop(R1, R2, R3);
+
+	print R3;
+
+	// Releasing terminal
+	multipush(R1, R2, R3);
+	R1 = 9;
+	R2 = currentPID;
+	call MOD_0;
+	multipop(R1, R2, R3);
+
+	return;
 endif;
 
-multipush(R1, R2, R3);
-R1 = 8;
-R2 = currentPID;
-call MOD_0;
-multipop(R1, R2, R3);
+if(functionNum == 4) then
+	// Acquring terminal
+	multipush(R1, R2, R3);
+	R1 = 8;
+	R2 = currentPID;
+	call MOD_0;
+	multipop(R1, R2, R3);
 
-print R3;
+	read;
 
-multipush(R1, R2, R3);
-R1 = 9;
-R2 = currentPID;
-call MOD_0;
-multipop(R1, R2, R3);
+	[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 4] = WAIT_TERMINAL;
 
-return;
+	// Scheduler
+	multipush(R1, R2, R3);
+	call MOD_5;
+	multipop(R1, R2, R3);
+
+
+	alias dataWordPhyAddr R4;
+	// Data word physical address
+	dataWordPhyAddr = [PAGE_TABLE_BASE + [SYSTEM_STATUS_TABLE + 1]*20 + 2*R3/512]*512 + R3%512;
+
+	// Saving input buffer to word
+	[dataWordPhyAddr] = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 8];
+
+	return;
+endif;

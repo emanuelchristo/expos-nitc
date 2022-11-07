@@ -2,12 +2,16 @@
 cd spl
 
 # Interrupts
+echo "COMPILING: int_6.spl"
+./spl ./spl_progs/int_6.spl
 echo "COMPILING: int_7.spl"
 ./spl ./spl_progs/int_7.spl
 echo "COMPILING: int_10.spl"
 ./spl ./spl_progs/int_10.spl
 echo "COMPILING: int_timer.spl"
 ./spl ./spl_progs/int_timer.spl
+echo "COMPILING: int_console.spl"
+./spl ./spl_progs/int_console.spl
 
 # Modules
 echo "COMPILING: module_0.spl"
@@ -36,6 +40,8 @@ echo "COMPILING: even_num.expl"
 ./expl ./expl_progs/even_num.expl
 echo "COMPILING: primes.expl"
 ./expl ./expl_progs/primes.expl
+echo "COMPILING: gcd.expl"
+./expl ./expl_progs/gcd.expl
 
 
 # LOADING KERNEL PROGRAMS ----------------------------
@@ -43,12 +49,16 @@ cd ../xfs-interface
 ./xfs-interface fdisk
 
 # Interrupts
+echo "LOADING: int_6.xsm"
+./xfs-interface load --int=6 ../spl/spl_progs/int_6.xsm
 echo "LOADING: int_7.xsm"
 ./xfs-interface load --int=7 ../spl/spl_progs/int_7.xsm
 echo "LOADING: int_10.xsm"
 ./xfs-interface load --int=10 ../spl/spl_progs/int_10.xsm
 echo "LOADING: int_timer.xsm"
 ./xfs-interface load --int=timer ../spl/spl_progs/int_timer.xsm
+echo "LOADING: int_console.xsm"
+./xfs-interface load --int=console ../spl/spl_progs/int_console.xsm
 
 # Modules
 echo "LOADING: module_0.xsm"
@@ -71,8 +81,8 @@ echo "LOADING: library.lib"
 ./xfs-interface load --library ../expl/library.lib
 echo "LOADING: idle.xsm"
 ./xfs-interface load --idle ../expl/expl_progs/idle.xsm
-echo "LOADING: odd_num.xsm"
-./xfs-interface load --init ../expl/expl_progs/odd_num.xsm
+echo "LOADING: gcd.xsm"
+./xfs-interface load --init ../expl/expl_progs/gcd.xsm
 echo "LOADING: even_num.xsm"
 ./xfs-interface load --exec ../expl/expl_progs/even_num.xsm
 echo "LOADING: primes.xsm"

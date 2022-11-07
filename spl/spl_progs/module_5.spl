@@ -18,10 +18,6 @@ newPID = currentPID;
 alias i R3;
 i = (currentPID + 1) % MAX_PROC_NUM;
 while i != currentPID do
-  if(i == 0) then
-    i = (i + 1) % MAX_PROC_NUM;
-    continue;
-  endif;
   alias status R4;
   status = [PROCESS_TABLE + i*16 + 4];
   if status == READY  || status == CREATED then
