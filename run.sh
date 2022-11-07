@@ -94,4 +94,4 @@ echo "LOADING: primes.xsm"
 # RUNNING ----------------------------
 echo "Running XSM..."
 cd ../xsm
-./xsm --timer 1000
+./xsm --timer 1000 --debug

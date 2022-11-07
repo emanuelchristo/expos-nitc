@@ -31,6 +31,8 @@ if(functionNum == 4) then
 	call MOD_0;
 	multipop(R1, R2, R3);
 
+	breakpoint;
+
 	read;
 
 	[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 4] = WAIT_TERMINAL;
@@ -39,6 +41,8 @@ if(functionNum == 4) then
 	multipush(R1, R2, R3);
 	call MOD_5;
 	multipop(R1, R2, R3);
+
+	breakpoint;
 
 
 	alias dataWordPhyAddr R4;
