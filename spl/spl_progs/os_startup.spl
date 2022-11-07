@@ -1,6 +1,6 @@
 // OS STARTUP
 
-// Loading boot module
+// Loading Module 7 - Boot Module
 loadi(54, 67);
 loadi(55, 68);
 
@@ -9,7 +9,6 @@ loadi(69, 11);
 loadi(70, 12);
 
 SP = 82*512 - 1;
-
 
 call BOOT_MODULE;
 
@@ -63,7 +62,6 @@ PTLR = 10;
 [81 * 512] = [69*512 + 1];
 
 SP = 8*512;
-
 
 ireturn;
 

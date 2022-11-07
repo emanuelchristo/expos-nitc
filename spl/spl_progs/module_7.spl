@@ -1,3 +1,7 @@
+// MODULE 7 - BOOT MODULE
+
+// LOADING USER PROGRAMS ---------------------
+
 // Loading library
 loadi(63,13);
 loadi(64,14);
@@ -12,47 +16,69 @@ loadi(85,69);
 // Loading primes program
 loadi(90,70);
 
-// Loading INT6 module
+// LOADING INTERRUPTS ---------------------
+
+// Loading INT 6 - Read
 loadi(14,27);
 loadi(15,28);
 
-// Loading INT7 module
+// Loading INT 7 - Write
 loadi(16,29);
 loadi(17,30);
 
-// Loading INT10 module
+// Loading INT 9 - Exec
+loadi(20,33);
+loadi(21,34);
+
+// Loading INT 10 - Exit
 loadi(22,35);
 loadi(23,36);
 
-// Loading exception handler
+// Loading INT - Exception
 loadi(2, 15);
 loadi(3, 16);
 
-// Loading timer interrupt handler
+// Loading INT - Timer
 loadi(4, 17);
 loadi(5, 18);
 
-// Loading console interrupt handler
+// Loading INT - Console
 loadi(8, 21);
 loadi(9, 22);
 
-// Loading scheduler module
-loadi(50,63);
-loadi(51,64);
+// LOADING MODULES ---------------------
 
-// Loading device manager module
-loadi(48,61);
-loadi(49,62);
-
-// Loading resource manager module
+// Loading Module 0 - Resource Manager
 loadi(40,53);
 loadi(41,54);
 
+// Loading Module 1 - Process Manager
+loadi(42,55);
+loadi(43,56);
+
+// Loading Module 2 - Memory Manager
+loadi(44,57);
+loadi(45,58);
+
+// Loading Module 4 - Device Manager
+loadi(48,61);
+loadi(49,62);
+
+// Loading Module 5 - Scheduler
+loadi(50,63);
+loadi(51,64);
+
+// Loading inode + user table
+loadi(59,3);
+loadi(60,4);
+
+
+
 // SETTING UP INIT PROCESS
 // Page table setup
-// Library
 alias temp R0;
 temp = PAGE_TABLE_BASE + 20;
+// Library
 [temp + 0] = 63;
 [temp + 1] = "0100";
 [temp + 2] = 64;
@@ -93,93 +119,6 @@ temp = PROCESS_TABLE + 16;
 // Set entry point IP value from header of INIT process to top of user stack
 [76 * 512] = [65*512 + 1];
 
-// SETTING UP even_num PROCESS
-// Page table setup
-// Library
-// temp = PAGE_TABLE_BASE + 40;
-// [temp + 0] = 63;
-// [temp + 1] = "0100";
-// [temp + 2] = 64;
-// [temp + 3] = "0100";
-
-// // Heap
-// [temp + 4] = 83;
-// [temp + 5] = "0110";
-// [temp + 6] = 84;
-// [temp + 7] = "0110";
-
-// // Code
-// [temp + 8] = 85;
-// [temp + 9] = "0100";
-// [temp + 10] = -1;
-// [temp + 11] = "0000";
-// [temp + 12] = -1;
-// [temp + 13] = "0000";
-// [temp + 14] = -1;
-// [temp + 15] = "0000";
-
-// // Stack
-// [temp + 16] = 87;
-// [temp + 17] = "0110";
-// [temp + 18] = 88;
-// [temp + 19] = "0110";
-
-// // Process table setup for init process
-// temp = PROCESS_TABLE + 32;
-// [temp + 1] = 2;
-// [temp + 4] = CREATED;
-// [temp + 11] = 89;
-// [temp + 12] = 0;
-// [temp + 13] = 8*512;
-// [temp + 14] = PAGE_TABLE_BASE + 40;
-// [temp + 15] = 10;
-
-// // Set entry point IP value from header of INIT process to top of user stack
-// [87 * 512] = [85*512 + 1];
-
-// SETTING UP primes PROCESS
-// Page table setup
-// Library
-// temp = PAGE_TABLE_BASE + 60;
-// [temp + 0] = 63;
-// [temp + 1] = "0100";
-// [temp + 2] = 64;
-// [temp + 3] = "0100";
-
-// // Heap
-// [temp + 4] = 91;
-// [temp + 5] = "0110";
-// [temp + 6] = 92;
-// [temp + 7] = "0110";
-
-// // Code
-// [temp + 8] = 90;
-// [temp + 9] = "0100";
-// [temp + 10] = -1;
-// [temp + 11] = "0000";
-// [temp + 12] = -1;
-// [temp + 13] = "0000";
-// [temp + 14] = -1;
-// [temp + 15] = "0000";
-
-// // Stack
-// [temp + 16] = 93;
-// [temp + 17] = "0110";
-// [temp + 18] = 94;
-// [temp + 19] = "0110";
-
-// // Process table setup for init process
-// temp = PROCESS_TABLE + 48;
-// [temp + 1] = 3;
-// [temp + 4] = CREATED;
-// [temp + 11] = 95;
-// [temp + 12] = 0;
-// [temp + 13] = 8*512;
-// [temp + 14] = PAGE_TABLE_BASE + 60;
-// [temp + 15] = 10;
-
-// // Set entry point IP value from header of INIT process to top of user stack
-// [93 * 512] = [90*512 + 1];
 
 // Setting all other processes to terminated
 alias i R1;
@@ -189,5 +128,24 @@ while (i < MAX_PROC_NUM) do
   [temp + 4] = TERMINATED;
   i = i + 1;
 endwhile;
+
+// Setting memory free list
+i = 0;
+alias freeMem R0;
+freeMem = 0;
+while(i < 128) do
+  if(i >= 83 && i <= 127) then
+    [MEMORY_FREE_LIST + i] = 0;
+    freeMem = freeMem + 1;
+  else
+    [MEMORY_FREE_LIST + i] = 1;
+  endif;
+  i = i + 1;
+endwhile;
+
+// Setting WAIT_MEM_COUNT
+[SYSTEM_STATUS_TABLE + 3] = 0;
+// Setting MEM_FREE_COUNT
+[SYSTEM_STATUS_TABLE + 2] = freeMem;
 
 return;

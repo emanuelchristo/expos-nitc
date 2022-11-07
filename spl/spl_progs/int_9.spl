@@ -1,0 +1,128 @@
+// INT 9 - EXEC SYS CALL
+
+// Setting mode flag to system call number
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 9] = 9;
+
+alias userSP R0;
+userSP = SP;
+
+// Switching to kernel stack
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 13] = SP;
+SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 11]*512 - 1;
+
+alias fileName R1;
+fileName = [[PTBR + 2*(userSP-2)/512]*512 + (userSP-2)%512];
+
+// Searching inode table for file
+alias i R2;
+alias found R3;
+found = 0;
+i = 0;
+while(i < MAX_FILE_NUM) do
+  if([INODE_TABLE + i*16 + 1] == fileName) then
+    if([INODE_TABLE + i*16 + 0] == EXEC) then
+      found = 1;
+      break;
+    endif;
+  endif;
+  i = i + 1;
+endwhile;
+
+// If file not found
+if(found == 0) then
+  // Setting return value
+  [[PTBR + 2*(userSP-1)/512]*512 + (userSP-1)%512] = -1;
+  // Setting mode flag
+  [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 9] = 0;
+  SP = userSP;
+  ireturn;
+endif;
+
+// Calling exit process
+multipush(R0, R1, R2, R3);
+R1 = 3;
+R2 = [SYSTEM_STATUS_TABLE + 1];
+call MOD_1;
+multipop(R0, R1, R2, R3);
+
+alias userAreaPage R4;
+userAreaPage = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 11];
+[MEMORY_FREE_LIST + userAreaPage] = [MEMORY_FREE_LIST + userAreaPage] + 1;
+// Decrementing MEM_FREE_COUNT in system status table
+[SYSTEM_STATUS_TABLE + 2] = [SYSTEM_STATUS_TABLE + 2] - 1;
+
+SP = userAreaPage*512 - 1;
+
+// Setting inode index in process table
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 7] = i;
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 4] = RUNNING;
+
+// PAGE TABLE setup
+// Library
+[PTBR + 0] = 63;
+[PTBR + 1] = "0100";
+[PTBR + 2] = 64;
+[PTBR + 3] = "0100";
+
+alias codePageCount R5;
+codePageCount = 0;
+
+if([INODE_TABLE + i*16 + 8] != -1) then codePageCount = codePageCount + 1; endif;
+if([INODE_TABLE + i*16 + 9] != -1) then codePageCount = codePageCount + 1; endif;
+if([INODE_TABLE + i*16 + 10] != -1) then codePageCount = codePageCount + 1; endif;
+if([INODE_TABLE + i*16 + 11] != -1) then codePageCount = codePageCount + 1; endif;
+
+// Getting free page
+multipush(R0, R1, R2, R3, R4, R5);
+R1 = 1;
+
+// Heap
+call MOD_2;
+[PTBR + 4] = R0;
+[PTBR + 5] = "0110";
+call MOD_2;
+[PTBR + 6] = R0;
+[PTBR + 7] = "0110";
+
+// Stack
+call MOD_2;
+[PTBR + 16] = R0;
+[PTBR + 17] = "0110";
+call MOD_2;
+[PTBR + 18] = R0;
+[PTBR + 19] = "0110";
+
+multipop(R0, R1, R2, R3, R4, R5);
+
+// Allocating code pages
+alias counter R6;
+counter = 0;
+while(counter < 4) do
+  if(counter >= codePageCount) then
+    [PTBR + 8 + 2*counter] = -1;
+    [PTBR + 9 + 2*counter] = "0000";
+    counter = counter + 1;
+    continue;
+  endif;
+
+  multipush(R0, R1, R2, R3, R4, R6);
+  R1 = 1;
+  call MOD_2;
+  R7 = R0;
+  multipop(R0, R1, R2, R3, R4, R5);
+  [PTBR + 8 + 2*counter] = R7;
+  [PTBR + 9 + 2*counter] = "0100";
+  loadi(R7, [INODE_TABLE + i*16 + 8 + counter]);
+  counter = counter + 1;
+endwhile;
+
+// Set entry point IP value from header of code to top of user stack
+[[PTBR + 16] * 512] = [[PTBR + 8]*512 + 1];
+
+// Setting mode flag
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 9] = 0;
+
+// Switching to user stack
+SP = 8*512;
+
+ireturn;

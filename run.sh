@@ -6,6 +6,8 @@ echo "COMPILING: int_6.spl"
 ./spl ./spl_progs/int_6.spl
 echo "COMPILING: int_7.spl"
 ./spl ./spl_progs/int_7.spl
+echo "COMPILING: int_9.spl"
+./spl ./spl_progs/int_9.spl
 echo "COMPILING: int_10.spl"
 ./spl ./spl_progs/int_10.spl
 echo "COMPILING: int_timer.spl"
@@ -16,6 +18,10 @@ echo "COMPILING: int_console.spl"
 # Modules
 echo "COMPILING: module_0.spl"
 ./spl ./spl_progs/module_0.spl
+echo "COMPILING: module_1.spl"
+./spl ./spl_progs/module_1.spl
+echo "COMPILING: module_2.spl"
+./spl ./spl_progs/module_2.spl
 echo "COMPILING: module_4.spl"
 ./spl ./spl_progs/module_4.spl
 echo "COMPILING: module_5.spl"
@@ -55,6 +61,8 @@ echo "LOADING: int_6.xsm"
 ./xfs-interface load --int=6 ../spl/spl_progs/int_6.xsm
 echo "LOADING: int_7.xsm"
 ./xfs-interface load --int=7 ../spl/spl_progs/int_7.xsm
+echo "LOADING: int_9.xsm"
+./xfs-interface load --int=9 ../spl/spl_progs/int_9.xsm
 echo "LOADING: int_10.xsm"
 ./xfs-interface load --int=10 ../spl/spl_progs/int_10.xsm
 echo "LOADING: int_timer.xsm"
@@ -65,6 +73,10 @@ echo "LOADING: int_console.xsm"
 # Modules
 echo "LOADING: module_0.xsm"
 ./xfs-interface load --module 0 ../spl/spl_progs/module_0.xsm
+echo "LOADING: module_1.xsm"
+./xfs-interface load --module 1 ../spl/spl_progs/module_1.xsm
+echo "LOADING: module_2.xsm"
+./xfs-interface load --module 2 ../spl/spl_progs/module_2.xsm
 echo "LOADING: module_4.xsm"
 ./xfs-interface load --module 4 ../spl/spl_progs/module_4.xsm
 echo "LOADING: module_7.xsm"
@@ -94,4 +106,4 @@ echo "LOADING: primes.xsm"
 # RUNNING ----------------------------
 echo "Running XSM..."
 cd ../xsm
-./xsm --timer 1000 --debug
+./xsm --timer 1000

@@ -3,6 +3,7 @@
 alias functionNum R1;
 alias currentPID R2;
 
+// Write
 if(functionNum == 3) then
 	// Acquring terminal
 	multipush(R1, R2, R3);
@@ -23,6 +24,8 @@ if(functionNum == 3) then
 	return;
 endif;
 
+
+// Read
 if(functionNum == 4) then
 	// Acquring terminal
 	multipush(R1, R2, R3);
@@ -30,8 +33,6 @@ if(functionNum == 4) then
 	R2 = currentPID;
 	call MOD_0;
 	multipop(R1, R2, R3);
-
-	breakpoint;
 
 	read;
 
@@ -41,9 +42,6 @@ if(functionNum == 4) then
 	multipush(R1, R2, R3);
 	call MOD_5;
 	multipop(R1, R2, R3);
-
-	breakpoint;
-
 
 	alias dataWordPhyAddr R4;
 	// Data word physical address

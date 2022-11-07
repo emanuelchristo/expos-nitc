@@ -1,0 +1,53 @@
+// MODULE 2 - MEMORY MANAGER
+
+alias functionNum R1;
+
+// Get Free Page
+if(functionNum == 1) then
+  // Increment wait mem count
+  [SYSTEM_STATUS_TABLE + 3] = [SYSTEM_STATUS_TABLE + 3] + 1;
+
+  // If mem free count is 0
+  if([SYSTEM_STATUS_TABLE + 2] == 0) then
+    [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 4] = WAIT_MEM;
+    multipush(R0, R1);
+    call MOD_5;
+    multipop(R0, R1);
+  endif;
+
+  // Decrement wait mem count
+  [SYSTEM_STATUS_TABLE + 3] = [SYSTEM_STATUS_TABLE + 3] - 1;
+  // Decrement mem free count
+  [SYSTEM_STATUS_TABLE + 2] = [SYSTEM_STATUS_TABLE + 2] - 1;
+
+  // Finding free memory page
+  R0 = 0;
+  while(R0 < 128) do
+    if([MEMORY_FREE_LIST + R0] == 0) then
+      [MEMORY_FREE_LIST + R0] = 1;
+      break;
+    endif;
+  endwhile;
+
+  return;
+endif;
+
+// Release page
+if(functionNum == 1) then
+  [MEMORY_FREE_LIST + R2] = [MEMORY_FREE_LIST + R2] - 1;
+  if([MEMORY_FREE_LIST + R2] == 0) then
+    [SYSTEM_STATUS_TABLE + 2] = [SYSTEM_STATUS_TABLE + 2] + 1;
+  endif;
+
+  // Setting WAIT_MEM processes to ready
+  alias i R3;
+  i = 0;
+  while(i < MAX_PROC_NUM) do
+    if([PROCESS_TABLE + i*16 + 1] != -1 && [PROCESS_TABLE + i*16 + 4] == WAIT_MEM) then
+      [PROCESS_TABLE + i*16 + 4] = READY;
+    endif;
+    i = i + 1;
+  endwhile;
+
+  return;
+endif;
