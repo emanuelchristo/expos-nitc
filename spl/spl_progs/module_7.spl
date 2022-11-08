@@ -42,6 +42,10 @@ loadi(3, 16);
 loadi(4, 17);
 loadi(5, 18);
 
+// Loading INT - Disk
+loadi(6, 19);
+loadi(7, 20);
+
 // Loading INT - Console
 loadi(8, 21);
 loadi(9, 22);
@@ -116,6 +120,13 @@ temp = PROCESS_TABLE + 16;
 [temp + 14] = PAGE_TABLE_BASE + 20;
 [temp + 15] = 10;
 
+// Setting per process resource table
+R7 = 0;
+while(R7 < 8) do
+  [80*512 + 510 - R7*2] = -1;
+  R7 = R7 + 1;
+endwhile;
+
 // Set entry point IP value from header of INIT process to top of user stack
 [76 * 512] = [65*512 + 1];
 
@@ -147,5 +158,8 @@ endwhile;
 [SYSTEM_STATUS_TABLE + 3] = 0;
 // Setting MEM_FREE_COUNT
 [SYSTEM_STATUS_TABLE + 2] = freeMem;
+
+// Setting up Disk Status table
+[DISK_STATUS_TABLE + 0] = 0;
 
 return;

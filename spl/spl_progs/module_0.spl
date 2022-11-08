@@ -1,5 +1,23 @@
 // RESOURCE MANAGER - MODULE 0
 
+// ACQUIRE DISK
+if(R1 == 3) then
+  // Disk in use
+  if([DISK_STATUS_TABLE + 0] == 1) then
+    [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 4] = WAIT_DISK;
+    multipush(R0, R1, R2);
+    call MOD_5;
+    multipop(R0, R1, R2);
+  endif;
+  
+  // Status
+  [DISK_STATUS_TABLE + 0] = 1;
+  // PID
+  [DISK_STATUS_TABLE + 4] = R2;
+  
+  return;
+endif;
+
 // ACQUIRE TERMINAL
 if (R1 == 8) then
   // Terminal in use

@@ -30,8 +30,6 @@ if(functionNum == 1) then
     R0 = R0 + 1;
   endwhile;
 
-  breakpoint;
-
   return;
 endif;
 
@@ -51,8 +49,6 @@ if(functionNum == 2) then
     endif;
     i = i + 1;
   endwhile;
-
-  breakpoint;
 
   return;
 endif;

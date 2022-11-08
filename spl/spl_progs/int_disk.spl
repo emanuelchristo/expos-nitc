@@ -1,0 +1,29 @@
+// DISK INTERRUPT HANDLER
+
+// Switching to kernel stack
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 13] = SP;
+SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 11]*512 - 1;
+
+backup;
+
+alias reqPID R0;
+reqPID = [DISK_STATUS_TABLE + 4];
+
+// Setting disk status
+[DISK_STATUS_TABLE + 0] = 0;
+
+// Setting all WAIT_DISK processes to READY
+alias i R1;
+i = 0;
+while (i < MAX_PROC_NUM) do
+  if([PROCESS_TABLE + i*16 + 1] != -1 && [PROCESS_TABLE + i*16 + 4] == WAIT_DISK) then
+    [PROCESS_TABLE + i*16 + 4] = READY;
+  endif;
+  i = i + 1;
+endwhile;
+
+restore;
+
+// Switching to user stack
+SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 13];
+ireturn;

@@ -14,6 +14,8 @@ echo "COMPILING: int_timer.spl"
 ./spl ./spl_progs/int_timer.spl
 echo "COMPILING: int_console.spl"
 ./spl ./spl_progs/int_console.spl
+echo "COMPILING: int_disk.spl"
+./spl ./spl_progs/int_disk.spl
 
 # Modules
 echo "COMPILING: module_0.spl"
@@ -71,6 +73,8 @@ echo "LOADING: int_timer.xsm"
 ./xfs-interface load --int=timer ../spl/spl_progs/int_timer.xsm
 echo "LOADING: int_console.xsm"
 ./xfs-interface load --int=console ../spl/spl_progs/int_console.xsm
+echo "LOADING: int_disk.xsm"
+./xfs-interface load --int=disk ../spl/spl_progs/int_disk.xsm
 
 # Modules
 echo "LOADING: module_0.xsm"
@@ -108,4 +112,4 @@ echo "LOADING: even_num.xsm"
 # RUNNING ----------------------------
 echo "Running XSM..."
 cd ../xsm
-./xsm --timer 1000 --debug
+./xsm --timer 1000
