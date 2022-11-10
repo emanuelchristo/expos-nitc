@@ -54,6 +54,8 @@ echo "COMPILING: bbl_srt.expl"
 ./expl ./expl_progs/bbl_srt.expl
 echo "COMPILING: shell.expl"
 ./expl ./expl_progs/shell.expl
+echo "COMPILING: lnkd_lst.expl"
+./expl ./expl_progs/lnkd_lst.expl
 
 
 # LOADING KERNEL PROGRAMS ----------------------------
@@ -107,6 +109,8 @@ echo "LOADING: odd_num.xsm"
 ./xfs-interface load --exec ../expl/expl_progs/odd_num.xsm
 echo "LOADING: even_num.xsm"
 ./xfs-interface load --exec ../expl/expl_progs/even_num.xsm
+echo "LOADING: lnkd_lst.xsm"
+./xfs-interface load --exec ../expl/expl_progs/lnkd_lst.xsm
 
 
 # RUNNING ----------------------------
