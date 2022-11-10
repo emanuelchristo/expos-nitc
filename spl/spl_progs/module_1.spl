@@ -3,7 +3,7 @@
 alias functionNum R1;
 alias pid R2;
 
-// Free user area page
+// FREE USER AREA PAGE
 if(functionNum == 2) then
   alias userAreaPage R3;
   userAreaPage = [PROCESS_TABLE + pid*16 + 11];
@@ -18,7 +18,7 @@ if(functionNum == 2) then
   return;
 endif;
 
-// Exit process
+// EXIT PROCESS
 if(functionNum == 3) then
   // Freeing page table
   multipush(R0, R1, R2);
@@ -26,7 +26,6 @@ if(functionNum == 3) then
   R2 = pid;
   call MOD_1;
   multipop(R0, R1, R2);
-
 
   // Freeing user area page
   multipush(R0, R1, R2);
@@ -41,7 +40,7 @@ if(functionNum == 3) then
   return;
 endif;
 
-// Free page table
+// FREE PAGE TABLE
 if(functionNum == 4) then
   // Setting library pages as invalid
   [PAGE_TABLE_BASE + pid*20 + 0] = -1;
@@ -60,6 +59,25 @@ if(functionNum == 4) then
       call MOD_2;
       multipop(R0, R1, R2, R3);
       [PAGE_TABLE_BASE + pid*20 + 2*i + 1] = "0000";
+    endif;
+    i = i + 1;
+  endwhile;
+
+  // Releasing stack and heap pages saved on disk
+  i = 2;
+  while(i <= 9) do
+    if(i == 2 || i == 3 || i == 8 || i == 9) then
+      if([DISK_MAP_TABLE + pid*10 + i] != -1) then
+        // Release block
+        multipush(R0, R1, R2);
+        R4 = pid;
+        R1 = 4;
+        R2 = [DISK_MAP_TABLE + R4*10 + i];
+        R3 = R4;
+        [DISK_MAP_TABLE + R4*10 + i] = -1;
+        call MOD_2;
+        multipop(R0, R1, R2);
+      endif;
     endif;
     i = i + 1;
   endwhile;

@@ -1,7 +1,5 @@
 // DISK INTERRUPT HANDLER
 
-breakpoint;
-
 // Switching to kernel stack
 [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 13] = SP;
 SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 11]*512 - 1;
@@ -28,7 +26,5 @@ restore;
 
 // Switching to user stack
 SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 13];
-
-breakpoint;
 
 ireturn;

@@ -1,0 +1,80 @@
+// EXCEPTION INTERRUPT HANDLER
+
+// Setting mode flag
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 9] = -1;
+
+// Switching to kernel stack
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 13] = SP;
+SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 11]*512 - 1;
+
+backup;
+multipush(EIP);
+
+alias userSP R0;
+userSP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 13];
+
+
+if(EC != 0 || userSP == PTLR*512-1) then
+  print "EXCEPTION: ";
+  print "PID: ";
+  print [SYSTEM_STATUS_TABLE + 1];
+  print "Cause: ";
+  if(EC == 1) then print "Illegal instruction"; endif;
+  if(EC == 2) then print "Illegal memory access"; endif;
+  if(EC == 3) then print "Arithmetic exception"; endif;
+  if(userSP == PTLR*512-1) then print "Stack overflow"; endif;
+
+  // Calling exit process
+  multipush(R0);
+  R1 = 3;
+  R2 = [SYSTEM_STATUS_TABLE + 1];
+  call MOD_1;
+  multipop(R0);
+
+  // Calling scheduler
+  call MOD_5;
+endif;
+
+// If page fault
+
+// If code page
+if(EPN >= 4 && EPN <= 7) then
+  // Calling get code page
+  multipush(R0);
+  R1 = 5;
+  // Block num
+  R2 = [DISK_MAP_TABLE + [SYSTEM_STATUS_TABLE + 1]*10 + EPN];
+  call MOD_2;
+  alias pageNum R2;
+  pageNum = R0;
+  multipop(R0);
+  [PTBR + EPN*2] = pageNum;
+  [PTBR + EPN*2 + 1] = "1100";
+endif;
+
+// If heap page
+if(EPN == 2 || EPN == 3) then
+  // Calling get free page
+  multipush(R0);
+  R1 = 1;
+  call MOD_2;
+  [PTBR + 4] = R0;
+  [PTBR + 5] = "1110";
+  R1 = 1;
+  call MOD_2;
+  [PTBR + 6] = R0;
+  [PTBR + 7] = "1110";
+  multipop(R0);
+endif;
+
+// Setting mode flag
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 9] = 0;
+
+multipop(EIP);
+restore;
+
+SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 13]+1;
+// Setting EIP to top of user stack
+[[PTBR + 2*SP/512]*512 + SP%512] = EIP;
+
+ireturn;

@@ -16,6 +16,8 @@ echo "COMPILING: int_console.spl"
 ./spl ./spl_progs/int_console.spl
 echo "COMPILING: int_disk.spl"
 ./spl ./spl_progs/int_disk.spl
+echo "COMPILING: int_exception.spl"
+./spl ./spl_progs/int_exception.spl
 
 # Modules
 echo "COMPILING: module_0.spl"
@@ -33,8 +35,6 @@ echo "COMPILING: module_7.spl"
 
 echo "COMPILING: os_startup.spl"
 ./spl ./spl_progs/os_startup.spl
-echo "COMPILING: haltprog.spl"
-./spl ./spl_progs/haltprog.spl
 
 
 # COMPILING EXPL PROGRAMS ----------------------------
@@ -92,8 +92,8 @@ echo "LOADING: module_5.xsm"
 
 echo "LOADING: os_startup.xsm"
 ./xfs-interface load --os ../spl/spl_progs/os_startup.xsm
-echo "LOADING: haltprog.xsm (exhandler)"
-./xfs-interface load --exhandler ../spl/spl_progs/haltprog.xsm
+echo "LOADING: int_exception.xsm"
+./xfs-interface load --exhandler ../spl/spl_progs/int_exception.xsm
 
 
 #LOADING USER PROGRAMS ----------------------------
@@ -112,4 +112,4 @@ echo "LOADING: even_num.xsm"
 # RUNNING ----------------------------
 echo "Running XSM..."
 cd ../xsm
-./xsm --timer 1000 --debug
+./xsm --timer 1000
