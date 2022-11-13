@@ -2,20 +2,31 @@
 
 print "INT 10";
 
-alias process_table R0;
+// Setting mode flag of current process to system call number
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 10;
 
-process_table = PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16;
+// Save user stack pointer to process table entry
+[PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 13] = SP;
 
-[process_table + 4] = TERMINATED;
+// Set SP to kernel stack
+SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512 - 1;
 
-alias i R1;
-i = 1;
-while i < MAX_PROC_NUM do
-  if [PROCESS_TABLE + i*16 + 4] == TERMINATED then
-    i = i + 1;
-    continue;
-  endif;
-  call MOD_5;
-endwhile;
+// Calling exit process
+R1 = 3;
+R2 = [SYSTEM_STATUS_TABLE + 1];
+call MOD_1;
 
-halt;
+// Calling scheduler
+call MOD_5;
+
+// alias i R1;
+// i = 1;
+// while i < MAX_PROC_NUM do
+//   if [PROCESS_TABLE + i*16 + 4] == TERMINATED then
+//     i = i + 1;
+//     continue;
+//   endif;
+//   call MOD_5;
+// endwhile;
+
+// halt;

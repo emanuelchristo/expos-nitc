@@ -6,6 +6,8 @@ echo "COMPILING: int_6.spl"
 ./spl ./spl_progs/int_6.spl
 echo "COMPILING: int_7.spl"
 ./spl ./spl_progs/int_7.spl
+echo "COMPILING: int_8.spl"
+./spl ./spl_progs/int_8.spl
 echo "COMPILING: int_9.spl"
 ./spl ./spl_progs/int_9.spl
 echo "COMPILING: int_10.spl"
@@ -67,6 +69,8 @@ echo "LOADING: int_6.xsm"
 ./xfs-interface load --int=6 ../spl/spl_progs/int_6.xsm
 echo "LOADING: int_7.xsm"
 ./xfs-interface load --int=7 ../spl/spl_progs/int_7.xsm
+echo "LOADING: int_8.xsm"
+./xfs-interface load --int=8 ../spl/spl_progs/int_8.xsm
 echo "LOADING: int_9.xsm"
 ./xfs-interface load --int=9 ../spl/spl_progs/int_9.xsm
 echo "LOADING: int_10.xsm"
@@ -116,4 +120,4 @@ echo "LOADING: lnkd_lst.xsm"
 # RUNNING ----------------------------
 echo "Running XSM..."
 cd ../xsm
-./xsm --timer 1000 --debug
+./xsm --timer 1000

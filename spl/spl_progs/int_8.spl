@@ -1,0 +1,135 @@
+// INT 8 - FORK
+
+// Setting mode flag of current process to system call number
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 8;
+
+// Save user stack pointer to process table entry
+[PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 13] = SP;
+
+// Set SP to kernel stack
+SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512 - 1;
+
+// Calling GET PCB ENTRY
+R1 = 1;
+call MOD_1;
+alias newPID R0;
+
+// No space for new process
+if(newPID == -1) then
+  SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 13];
+  // Setting return value
+  [[PTBR + 2*(SP-1)/512]*512 + (SP-1)%512] = -1;
+  // Setting mode flag
+  [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
+  ireturn;
+endif;
+
+// Heap page not alloted to parent process
+if([PTBR + 4] == -1) then
+  // Calling GET FREE PAGE
+  multipush(R0);
+  R1 = 1;
+  call MOD_2;
+  [PTBR + 4] = R0;
+  [PTBR + 5] = "0110";
+  R1 = 1;
+  call MOD_2;
+  [PTBR + 6] = R0;
+  [PTBR + 7] = "0110";
+  multipop(R0);
+endif;
+
+// Allocating stack and user area page for child process
+multipush(R0);
+R1 = 1;
+call MOD_2;
+multipush(R0);
+R1 = 1;
+call MOD_2;
+multipush(R0);
+R1 = 1;
+call MOD_2;
+multipush(R0);
+
+multipop(R0, R1, R2, R3);
+
+[PAGE_TABLE_BASE + 20*newPID + 16] = R1;
+[PAGE_TABLE_BASE + 20*newPID + 17] = "0110";
+[PAGE_TABLE_BASE + 20*newPID + 18] = R2;
+[PAGE_TABLE_BASE + 20*newPID + 19] = "0110";
+
+// Setting user area page
+[PROCESS_TABLE + 16*newPID + 11] = R3;
+
+// Setting up child process table
+alias currPID R1;
+currPID = [SYSTEM_STATUS_TABLE + 1];
+
+// User ID
+[PROCESS_TABLE + newPID*16 + 3] = [PROCESS_TABLE + currPID*16 + 3];
+// Swap flag
+[PROCESS_TABLE + newPID*16 + 6] = [PROCESS_TABLE + currPID*16 + 6];
+// User area swap status
+[PROCESS_TABLE + newPID*16 + 10] = [PROCESS_TABLE + currPID*16 + 10];
+// Inode index
+[PROCESS_TABLE + newPID*16 + 7] = [PROCESS_TABLE + currPID*16 + 7];
+// UPTR
+[PROCESS_TABLE + newPID*16 + 13] = [PROCESS_TABLE + currPID*16 + 13];
+
+// Tick
+[PROCESS_TABLE + newPID*16 + 0] = 0;
+// Mode flag
+[PROCESS_TABLE + newPID*16 + 9] = 0;
+// KPTR
+[PROCESS_TABLE + newPID*16 + 12] = 0;
+// State
+[PROCESS_TABLE + newPID*16 + 4] = CREATED;
+
+// PPID
+[PROCESS_TABLE + newPID*16 + 2] = currPID;
+
+// Copying per process resource table
+R2 = 0;
+while(R2 < 16) do
+  [[PROCESS_TABLE + newPID*16 + 11]*512 + 511 - R2] = [[PROCESS_TABLE + currPID*16 + 11]*512 + 511 - R2];
+  R2 = R2 + 1;
+endwhile;
+
+// Copying per process disk map table
+R2 = 0;
+while(R2 < 10) do 
+  [DISK_MAP_TABLE + newPID*10 + R2] = [DISK_MAP_TABLE + currPID*10 + R2];
+  R2 = R2 + 1;
+endwhile; 
+
+// Setting up child page table
+R2 = 0;
+while(R2 <= 15) do
+  [PAGE_TABLE_BASE + newPID*20 + R2] =[PAGE_TABLE_BASE + currPID*20 + R2];
+  [MEMORY_FREE_LIST + [PAGE_TABLE_BASE + currPID*20 + R2]] = [MEMORY_FREE_LIST + [PAGE_TABLE_BASE + currPID*20 + R2]] + 1;
+  R2 = R2 + 1;
+endwhile;
+
+// Copying parent stack to user stack
+R2 = 0;
+while(R2 < 512) do
+  [[PAGE_TABLE_BASE + newPID*20 + 16]*512 + R2] = [[PAGE_TABLE_BASE + currPID*20 + 16]*512 + R2];
+  [[PAGE_TABLE_BASE + newPID*20 + 18]*512 + R2] = [[PAGE_TABLE_BASE + currPID*20 + 18]*512 + R2];
+  R2 = R2 + 1;
+endwhile;
+
+// Setting BP to top of child kernel stack
+[[PROCESS_TABLE + newPID*16 + 11]*512] = BP;
+[PROCESS_TABLE + newPID*16 + 12] = 1;
+
+
+// Setting return value of parent process
+SP = [PROCESS_TABLE + (currPID * 16) + 13];
+[[PTBR + 2*(SP-1)/512]*512 + (SP-1)%512] = newPID;
+// Setting return value of child process
+[[PAGE_TABLE_BASE + 20*newPID + 2*(SP-1)/512]*512 + (SP-1)%512] = 0;
+
+// Setting mode flag
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
+
+ireturn;

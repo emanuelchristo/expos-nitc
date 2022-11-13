@@ -3,6 +3,23 @@
 alias functionNum R1;
 alias pid R2;
 
+// GET PCB ENTRY
+if(functionNum == 1) then
+  R3 = 0;
+  while(R3 < MAX_PROC_NUM) do
+    if([PROCESS_TABLE + R3*16 + 4] == TERMINATED) then
+      [PROCESS_TABLE + R3*16 + 4] = ALLOCATED;
+      [PROCESS_TABLE + R3*16 + 14] = PAGE_TABLE_BASE + 20*R3;
+      [PROCESS_TABLE + R3*16 + 15] = 10;
+      break;
+    endif;
+    R3 = R3 + 1;
+  endwhile;
+  R0 = -1;
+  if(R3 != MAX_PROC_NUM) then R0 = R3; endif;
+  return;
+endif;
+
 // FREE USER AREA PAGE
 if(functionNum == 2) then
   alias userAreaPage R3;

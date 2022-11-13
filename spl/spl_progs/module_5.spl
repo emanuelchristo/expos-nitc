@@ -39,6 +39,7 @@ PTLR = [new_process_table + 15];
 
 if([new_process_table + 4] == CREATED) then
     [new_process_table + 4] = RUNNING;
+    BP = [[new_process_table + 11]*512];
     SP = [new_process_table + 13];
     [new_process_table + 9] = 0;
     ireturn;
