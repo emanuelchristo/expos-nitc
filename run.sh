@@ -66,6 +66,8 @@ echo "COMPILING: fork.expl"
 ./expl ./expl_progs/fork.expl
 echo "COMPILING: fork_ll.expl"
 ./expl ./expl_progs/fork_ll.expl
+echo "COMPILING: shell2.expl"
+./expl ./expl_progs/shell2.expl
 
 
 # LOADING KERNEL PROGRAMS ----------------------------
@@ -119,8 +121,8 @@ echo "LOADING: library.lib"
 ./xfs-interface load --library ../expl/library.lib
 echo "LOADING: idle.xsm"
 ./xfs-interface load --idle ../expl/expl_progs/idle.xsm
-echo "LOADING: fork_ll.xsm"
-./xfs-interface load --init ../expl/expl_progs/fork_ll.xsm
+echo "LOADING: shell2.xsm"
+./xfs-interface load --init ../expl/expl_progs/shell2.xsm
 echo "LOADING: odd_num.xsm"
 ./xfs-interface load --exec ../expl/expl_progs/odd_num.xsm
 echo "LOADING: even_num.xsm"
