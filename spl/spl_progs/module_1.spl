@@ -8,6 +8,7 @@ if(functionNum == 1) then
   R3 = 0;
   while(R3 < MAX_PROC_NUM) do
     if([PROCESS_TABLE + R3*16 + 4] == TERMINATED) then
+      [PROCESS_TABLE + R3*16 + 1] = R3;
       [PROCESS_TABLE + R3*16 + 4] = ALLOCATED;
       [PROCESS_TABLE + R3*16 + 14] = PAGE_TABLE_BASE + 20*R3;
       [PROCESS_TABLE + R3*16 + 15] = 10;

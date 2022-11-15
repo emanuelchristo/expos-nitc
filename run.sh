@@ -68,6 +68,10 @@ echo "COMPILING: fork_ll.expl"
 ./expl ./expl_progs/fork_ll.expl
 echo "COMPILING: shell2.expl"
 ./expl ./expl_progs/shell2.expl
+echo "COMPILING: pid.expl"
+./expl ./expl_progs/pid.expl
+echo "COMPILING: forkpid.expl"
+./expl ./expl_progs/forkpid.expl
 
 
 # LOADING KERNEL PROGRAMS ----------------------------
@@ -129,9 +133,13 @@ echo "LOADING: even_num.xsm"
 ./xfs-interface load --exec ../expl/expl_progs/even_num.xsm
 echo "LOADING: lnkd_lst.xsm"
 ./xfs-interface load --exec ../expl/expl_progs/lnkd_lst.xsm
+echo "LOADING: pid.xsm"
+./xfs-interface load --exec ../expl/expl_progs/pid.xsm
+echo "LOADING: forkpid.xsm"
+./xfs-interface load --exec ../expl/expl_progs/forkpid.xsm
 
 
 # RUNNING ----------------------------
 echo "Running XSM..."
 cd ../xsm
-./xsm --timer 1000
+./xsm --timer 1000 --debug
