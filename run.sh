@@ -12,6 +12,10 @@ echo "COMPILING: int_9.spl"
 ./spl ./spl_progs/int_9.spl
 echo "COMPILING: int_10.spl"
 ./spl ./spl_progs/int_10.spl
+echo "COMPILING: int_11.spl"
+./spl ./spl_progs/int_11.spl
+echo "COMPILING: int_15.spl"
+./spl ./spl_progs/int_15.spl
 echo "COMPILING: int_timer.spl"
 ./spl ./spl_progs/int_timer.spl
 echo "COMPILING: int_console.spl"
@@ -79,6 +83,10 @@ echo "LOADING: int_9.xsm"
 ./xfs-interface load --int=9 ../spl/spl_progs/int_9.xsm
 echo "LOADING: int_10.xsm"
 ./xfs-interface load --int=10 ../spl/spl_progs/int_10.xsm
+echo "LOADING: int_11.xsm"
+./xfs-interface load --int=11 ../spl/spl_progs/int_11.xsm
+echo "LOADING: int_15.xsm"
+./xfs-interface load --int=15 ../spl/spl_progs/int_15.xsm
 echo "LOADING: int_timer.xsm"
 ./xfs-interface load --int=timer ../spl/spl_progs/int_timer.xsm
 echo "LOADING: int_console.xsm"

@@ -37,6 +37,22 @@ endif;
 
 // EXIT PROCESS
 if(functionNum == 3) then
+  // If call not from exec sys call
+  if([PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 9] != 9) then
+    R3 = 0;
+    while(R3 < MAX_PROC_NUM) do
+      // If a process is waiting for this process, then set it to READY
+      if([PROCESS_TABLE + R3*16 + 4] == WAIT_PROCESS && [PROCESS_TABLE + R3*16 + 5]  ==[SYSTEM_STATUS_TABLE + 1]) then
+        [PROCESS_TABLE + R3*16 + 4] = READY;
+      endif;
+      // If a process is the child of this process, then make it orphan
+      if([PROCESS_TABLE + R3*16 + 2] == [SYSTEM_STATUS_TABLE + 1]) then
+        [PROCESS_TABLE + R3*16 + 2] = -1;
+      endif;
+      R3 = R3 + 1;
+    endwhile;
+  endif;
+
   // Freeing page table
   multipush(R0, R1, R2);
   R1 = 4;

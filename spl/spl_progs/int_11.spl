@@ -1,0 +1,71 @@
+// INT 9 - GETPID, GETPPID, WAIT, SIGNAL SYS CALLS
+
+alias sysCallNum R0;
+alias arg1 R1;
+alias retAddr R2;
+
+// Extracting arguments from stack
+sysCallNum = [[PTBR + 2*(SP-5)/512]*512 + (SP-5)%512];
+arg1 = [[PTBR + 2*(SP-4)/512]*512 + (SP-4)%512];
+retAddr = [PTBR + 2*(SP-1)/512]*512 + (SP-1)%512;
+
+// Setting mode flag
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 9] = sysCallNum;
+
+// Switching to kernel stack
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 13] = SP;
+SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 11]*512 - 1;
+
+[retAddr] = 0;
+
+// GETPID
+if(sysCallNum == 11) then
+  [retAddr] = [SYSTEM_STATUS_TABLE + 1];
+endif;
+
+// GETPPID
+if(sysCallNum == 12) then
+  [retAddr] = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 2];
+endif;
+
+// WAIT
+if(sysCallNum == 13) then
+  // If process id given is invalid
+  if(arg1 < 0 || arg1 >= MAX_PROC_NUM || arg1 == [SYSTEM_STATUS_TABLE + 1] || [PROCESS_TABLE + arg1*16 + 4] == TERMINATED) then
+    [retAddr] = -1;
+    // Setting mode flag
+    [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 9] = 0;
+    // Switching to kernel stack
+    SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 13];
+    ireturn;
+  endif;
+  
+  // Setting state to WAIT_PROCESS
+  [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 4] = WAIT_PROCESS;
+  [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 5] = arg1;
+
+  // Calling scheduler
+  multipush(R0, R1, R2);
+  call MOD_5;
+  multipop(R0, R1, R2);
+
+  [retAddr] = 0;
+endif;
+
+// SIGNAL
+if(sysCallNum == 14) then
+  R3 = 0;
+  while(R3 < MAX_PROC_NUM) do
+    if([PROCESS_TABLE + R3*16 + 4] == WAIT_PROCESS && [PROCESS_TABLE + R3*16 + 4] == [SYSTEM_STATUS_TABLE + 1]) then
+      [PROCESS_TABLE + R3*16 + 4] = READY;
+    endif;
+    R3 = R3 + 1;
+  endwhile;
+  [retAddr] = 0;
+endif;
+
+// Setting mode flag
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 9] = 0;
+// Switching to kernel stack
+SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 13];
+ireturn;
