@@ -90,8 +90,17 @@ currPID = [SYSTEM_STATUS_TABLE + 1];
 
 // Copying per process resource table
 R2 = 0;
-while(R2 < 16) do
-  [[PROCESS_TABLE + newPID*16 + 11]*512 + 511 - R2] = [[PROCESS_TABLE + currPID*16 + 11]*512 + 511 - R2];
+alias currPPRT R3;
+alias newPPRT R4;
+currPPRT = [PROCESS_TABLE + currPID*16 + 11]*512 + 512 - 16;
+newPPRT = [PROCESS_TABLE + newPID*16 + 11]*512 + 512 - 16;
+while(R2 < 8) do
+  [newPPRT + R2*2] = [currPPRT + R2*2];
+  [newPPRT + R2*2 + 1] = [currPPRT + R2*2 + 1];
+  // If it is a semaphore, increment process count in semaphore table
+  if([currPPRT + R2*2] == SEMAPHORE) then
+    [SEMAPHORE_TABLE + [currPPRT + R2*2 + 1]*4 + 1] = [SEMAPHORE_TABLE + [currPPRT + R2*2 + 1]*4 + 1] + 1; 
+  endif;
   R2 = R2 + 1;
 endwhile;
 

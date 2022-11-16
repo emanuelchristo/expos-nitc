@@ -14,6 +14,10 @@ echo "COMPILING: int_10.spl"
 ./spl ./spl_progs/int_10.spl
 echo "COMPILING: int_11.spl"
 ./spl ./spl_progs/int_11.spl
+echo "COMPILING: int_13.spl"
+./spl ./spl_progs/int_13.spl
+echo "COMPILING: int_14.spl"
+./spl ./spl_progs/int_14.spl
 echo "COMPILING: int_15.spl"
 ./spl ./spl_progs/int_15.spl
 echo "COMPILING: int_timer.spl"
@@ -91,6 +95,10 @@ echo "LOADING: int_10.xsm"
 ./xfs-interface load --int=10 ../spl/spl_progs/int_10.xsm
 echo "LOADING: int_11.xsm"
 ./xfs-interface load --int=11 ../spl/spl_progs/int_11.xsm
+echo "LOADING: int_13.xsm"
+./xfs-interface load --int=13 ../spl/spl_progs/int_13.xsm
+echo "LOADING: int_14.xsm"
+./xfs-interface load --int=14 ../spl/spl_progs/int_14.xsm
 echo "LOADING: int_15.xsm"
 ./xfs-interface load --int=15 ../spl/spl_progs/int_15.xsm
 echo "LOADING: int_timer.xsm"
@@ -142,4 +150,4 @@ echo "LOADING: forkpid.xsm"
 # RUNNING ----------------------------
 echo "Running XSM..."
 cd ../xsm
-./xsm --timer 1000 --debug
+./xsm --timer 1000

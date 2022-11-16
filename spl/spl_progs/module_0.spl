@@ -18,6 +18,57 @@ if(R1 == 3) then
   return;
 endif;
 
+// ACQUIRE SEMAPHORE
+if (R1 == 6) then
+  alias pid R2;
+
+  // Searching for free entry
+  R3 = 0;
+  while(R3 < MAX_SEM_COUNT) do
+    // If process count is 0 - means free entry
+    if([SEMAPHORE_TABLE + R3*4 + 1] == 0) then
+      [SEMAPHORE_TABLE + R3*4 + 0] = -1;
+      [SEMAPHORE_TABLE + R3*4 + 1] = 1;
+      break;
+    endif;
+    R3 = R3 + 1;
+  endwhile;
+
+  // If no free entry
+  if(R3 == MAX_SEM_COUNT) then 
+    R0 = -1;
+  else
+    R0 = R3;
+  endif;
+  return;
+endif;
+
+// RELEASE SEMAPHORE
+if (R1 == 7) then
+  alias semIndex R2;
+  alias pid R3;
+  if([SEMAPHORE_TABLE + 4*semIndex] == pid) then
+    // Unlocking semaphore
+    [SEMAPHORE_TABLE + 4*semIndex] = -1;
+
+    // Waking up processes waiting for this semaphore
+    R4 = 0;
+    while(R4 < MAX_PROC_NUM) do
+      if([PROCESS_TABLE + R4*16 + 4] == WAIT_SEMAPHORE && [PROCESS_TABLE + R4*16 + 5] == semIndex) then
+        [PROCESS_TABLE + R4*16 + 4] = READY;
+        [PROCESS_TABLE + R4*16 + 5] = -1;
+      endif;
+      R4 = R4 + 1;
+    endwhile;
+  endif;
+
+  // Decrementing process count
+  [SEMAPHORE_TABLE + 4*semIndex + 1] = [SEMAPHORE_TABLE + 4*semIndex + 1] - 1;
+
+  R0 = 0;
+  return;
+endif;
+
 // ACQUIRE TERMINAL
 if (R1 == 8) then
   // Terminal in use

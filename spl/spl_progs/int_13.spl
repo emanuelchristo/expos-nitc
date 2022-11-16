@@ -1,0 +1,106 @@
+// INT 13 - SEMGET, SEMRELEASE
+
+alias sysCallNum R0;
+alias arg1 R1;
+alias retAddr R2;
+
+// Extracting arguments from stack
+sysCallNum = [[PTBR + 2*(SP-5)/512]*512 + (SP-5)%512];
+arg1 = [[PTBR + 2*(SP-4)/512]*512 + (SP-4)%512];
+retAddr = [PTBR + 2*(SP-1)/512]*512 + (SP-1)%512;
+
+// Setting mode flag
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 9] = sysCallNum;
+
+// Switching to kernel stack
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 13] = SP;
+SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 11]*512 - 1;
+
+
+// SEMGET
+if(sysCallNum == 17) then
+  // Semaphore descriptor
+  alias indexPPRT R3;
+  alias PPRT R4;
+  indexPPRT = 0;
+  PPRT = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 11]*512 + 512 - 16;
+
+  // Checking for free entry in per process resource table
+  while(indexPPRT < 8) do
+    // If free entry
+    if([PPRT + indexPPRT*2] == -1) then
+      break;
+    endif;
+    indexPPRT = indexPPRT + 1;
+  endwhile;
+
+  // If no free entry in per process resource table
+  if(indexPPRT == 8) then
+    [retAddr] = -1;
+    // Setting mode flag
+    [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 9] = 0;
+    // Switching to kernel stack
+    SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 13];
+    ireturn;
+  endif;
+
+  [PPRT + indexPPRT*2] = SEMAPHORE;
+
+  // Acquring semaphore
+  multipush(R0, R1, R2, R3, R4);
+  R1 = 6;
+  R2 = [SYSTEM_STATUS_TABLE + 1];
+  call MOD_0;
+  alias semIndex R5;
+  semIndex = R0;
+  multipop(R0, R1, R2, R3, R4);
+
+  // If no semaphores
+  if(semIndex == -1) then
+    [retAddr] = -2;
+  else
+    // Attaching semaphore to process
+    [PPRT + indexPPRT*2 + 1] = semIndex;
+    [retAddr] = indexPPRT;
+  endif;
+
+  // Setting mode flag
+  [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 9] = 0;
+  // Switching to kernel stack
+  SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 13];
+  ireturn;
+endif;
+
+// SEMRELEASE
+if(sysCallNum == 18) then
+  alias PPRT R3;
+  PPRT = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 11]*512 + 512 - 16;
+
+  // If semaphore descriptor arg is invalid
+  if(arg1 < 0 || arg1 >= 8 || [PPRT + arg1*2] != SEMAPHORE) then
+    [retAddr] = -1;
+    // Setting mode flag
+    [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 9] = 0;
+    // Switching to kernel stack
+    SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 13];
+    ireturn;
+  endif;
+
+  // Calling release semaphore
+  multipush(R0, R1, R2, R3);
+  R2 = arg1;
+  R1 = 7;
+  R3 = [SYSTEM_STATUS_TABLE + 1];
+  call MOD_0;
+  multipop(R0, R1, R2, R3);
+
+  // Invalidate per process resource table entry
+  [PPRT + arg1*2] = -1;
+
+  [retAddr] = 0;
+  // Setting mode flag
+  [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 9] = 0;
+  // Switching to kernel stack
+  SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 13];
+  ireturn;
+endif;

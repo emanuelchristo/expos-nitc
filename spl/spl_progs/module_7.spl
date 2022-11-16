@@ -42,6 +42,14 @@ loadi(23,36);
 loadi(24,37);
 loadi(25,38);
 
+// Loading INT 13 - Semget, Semrelease
+loadi(28,41);
+loadi(29,42);
+
+// Loading INT 14 - Semlock, Semunlock
+loadi(30,43);
+loadi(31,44);
+
 // Loading INT 15 - Shutdown
 loadi(32,45);
 loadi(33,46);
@@ -165,6 +173,17 @@ while (i < MAX_PROC_NUM) do
   [temp + 4] = TERMINATED;
   i = i + 1;
 endwhile;
+
+// Setting semaphore table
+i = 0;
+while(i < MAX_SEM_COUNT) do
+  [SEMAPHORE_TABLE + i*4 + 0] = -1;
+  [SEMAPHORE_TABLE + i*4 + 1] = 0;
+  [SEMAPHORE_TABLE + i*4 + 2] = -1;
+  [SEMAPHORE_TABLE + i*4 + 3] = -1;
+  i = i + 1;
+endwhile;
+
 
 // Setting memory free list
 i = 0;
