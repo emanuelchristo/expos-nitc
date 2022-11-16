@@ -76,6 +76,8 @@ echo "COMPILING: pid.expl"
 ./expl ./expl_progs/pid.expl
 echo "COMPILING: forkpid.expl"
 ./expl ./expl_progs/forkpid.expl
+echo "COMPILING: readwrt.expl"
+./expl ./expl_progs/readwrt.expl
 
 
 # LOADING KERNEL PROGRAMS ----------------------------
@@ -145,6 +147,8 @@ echo "LOADING: pid.xsm"
 ./xfs-interface load --exec ../expl/expl_progs/pid.xsm
 echo "LOADING: forkpid.xsm"
 ./xfs-interface load --exec ../expl/expl_progs/forkpid.xsm
+echo "LOADING: readwrt.xsm"
+./xfs-interface load --exec ../expl/expl_progs/readwrt.xsm
 
 
 # RUNNING ----------------------------

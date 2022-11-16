@@ -16,7 +16,6 @@ retAddr = [PTBR + 2*(SP-1)/512]*512 + (SP-1)%512;
 [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 13] = SP;
 SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 11]*512 - 1;
 
-[retAddr] = 0;
 
 // SEMLOCK
 if(sysCallNum == 19) then
@@ -34,9 +33,9 @@ if(sysCallNum == 19) then
   endif;
     
   // If semaphore is locked by some other process
-  while([SEMAPHORE_TABLE + arg1*4] != -1 && [SEMAPHORE_TABLE + arg1*4] != [SYSTEM_STATUS_TABLE + 1]) do
+  while([SEMAPHORE_TABLE + [PPRT + arg1*2 + 1]*4] != -1 && [SEMAPHORE_TABLE + [PPRT + arg1*2 + 1]*4] != [SYSTEM_STATUS_TABLE + 1]) do
     [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 4] = WAIT_SEMAPHORE;
-    [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 5] = arg1;
+    [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 5] = [PPRT + arg1*2 + 1];
     // Calling scheduler
     multipush(R0, R1, R2, R3);
     call MOD_5;
@@ -44,7 +43,7 @@ if(sysCallNum == 19) then
   endwhile;
 
   // Setting locking pid of semaphore
-  [SEMAPHORE_TABLE + arg1*4] = [SYSTEM_STATUS_TABLE + 1];
+  [SEMAPHORE_TABLE + [PPRT + arg1*2 + 1]*4] = [SYSTEM_STATUS_TABLE + 1];
 
   [retAddr] = 0;
   // Setting mode flag
@@ -70,7 +69,7 @@ if(sysCallNum == 20) then
   endif;
 
   // If semaphore is locked by some other process
-  if([SEMAPHORE_TABLE + arg1*4] != [SYSTEM_STATUS_TABLE + 1]) then
+  if([SEMAPHORE_TABLE + [PPRT + arg1*2 + 1]*4] != [SYSTEM_STATUS_TABLE + 1]) then
     [retAddr] = -2;
     // Setting mode flag
     [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 9] = 0;
@@ -80,12 +79,12 @@ if(sysCallNum == 20) then
   endif;
 
   // Unlocking semaphore
-  [SEMAPHORE_TABLE + arg1*4] = -1;
+  [SEMAPHORE_TABLE + [PPRT + arg1*2 + 1]*4] = -1;
   
   // Readying processes waiting for the semaphore
   R4 = 0;
   while(R4 < MAX_PROC_NUM) do
-    if([PROCESS_TABLE + R4*16 + 4] == WAIT_SEMAPHORE && [PROCESS_TABLE + R4*16 + 5] == [SYSTEM_STATUS_TABLE + 1]) then
+    if([PROCESS_TABLE + R4*16 + 4] == WAIT_SEMAPHORE && [PROCESS_TABLE + R4*16 + 5] == [PPRT + arg1*2 + 1]) then
       [PROCESS_TABLE + R4*16 + 4] = READY;
       [PROCESS_TABLE + R4*16 + 5] = -1;
     endif;

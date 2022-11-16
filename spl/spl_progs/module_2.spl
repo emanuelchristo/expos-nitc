@@ -67,7 +67,7 @@ if(functionNum == 5) then
   // Searching disk map table for the given block number
   R3 = 0;
   while(R3 < MAX_PROC_NUM*10) do
-    if([DISK_MAP_TABLE + R3] == blockNumber) then
+    if([DISK_MAP_TABLE + R3] == blockNumber && [PAGE_TABLE_BASE + (R3/10)*20 + (R3%10)*2] != -1) then
       break;
     endif;
     R3 = R3 + 1;

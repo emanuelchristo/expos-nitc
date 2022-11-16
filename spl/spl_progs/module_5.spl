@@ -12,20 +12,29 @@ process_table_entry = PROCESS_TABLE + currentPID * 16;
 [process_table_entry + 14] = PTBR;
 [process_table_entry + 15] = PTLR;
 
-
+// Round robin
 alias newPID R2;
 newPID = currentPID;
 alias i R3;
 i = (currentPID + 1) % MAX_PROC_NUM;
 while i != currentPID do
+  // Skipping idle process
+  if(i == 0) then
+    i = (i + 1) % MAX_PROC_NUM;
+    continue;
+  endif;
   alias status R4;
   status = [PROCESS_TABLE + i*16 + 4];
-  if status == READY  || status == CREATED then
+  if(status == READY  || status == CREATED) then
     newPID = i;
     break;
   endif;
   i = (i + 1) % MAX_PROC_NUM;
 endwhile;
+// If no process is available newPID will be currPID, checking if its is available otherwise setting idle process
+if([PROCESS_TABLE + newPID*16 + 4] != READY && [PROCESS_TABLE + newPID*16 + 4] != CREATED) then
+  newPID = 0;
+endif;
 
 alias new_process_table R3;
 new_process_table = PROCESS_TABLE + newPID * 16;

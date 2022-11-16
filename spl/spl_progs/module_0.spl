@@ -45,20 +45,24 @@ endif;
 
 // RELEASE SEMAPHORE
 if (R1 == 7) then
-  alias semIndex R2;
+  alias pprtIndex R2;
   alias pid R3;
+  alias PPRT R4;
+  alias semIndex R5;
+  PPRT = [PROCESS_TABLE + pid*16 + 11]*512 + 512 - 16;
+  semIndex = [PPRT + pprtIndex*2 + 1];
   if([SEMAPHORE_TABLE + 4*semIndex] == pid) then
     // Unlocking semaphore
     [SEMAPHORE_TABLE + 4*semIndex] = -1;
 
     // Waking up processes waiting for this semaphore
-    R4 = 0;
-    while(R4 < MAX_PROC_NUM) do
-      if([PROCESS_TABLE + R4*16 + 4] == WAIT_SEMAPHORE && [PROCESS_TABLE + R4*16 + 5] == semIndex) then
-        [PROCESS_TABLE + R4*16 + 4] = READY;
-        [PROCESS_TABLE + R4*16 + 5] = -1;
+    R6 = 0;
+    while(R6 < MAX_PROC_NUM) do
+      if([PROCESS_TABLE + R6*16 + 4] == WAIT_SEMAPHORE && [PROCESS_TABLE + R6*16 + 5] == semIndex) then
+        [PROCESS_TABLE + R6*16 + 4] = READY;
+        [PROCESS_TABLE + R6*16 + 5] = -1;
       endif;
-      R4 = R4 + 1;
+      R6 = R6 + 1;
     endwhile;
   endif;
 
