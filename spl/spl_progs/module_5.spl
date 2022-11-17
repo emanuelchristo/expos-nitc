@@ -1,5 +1,8 @@
 // SCHEDULER - MODULE 5
 
+// Counting context switches
+[SYSTEM_STATUS_TABLE + 7] = [SYSTEM_STATUS_TABLE + 7] + 1;
+
 alias currentPID R0;
 currentPID = [SYSTEM_STATUS_TABLE+1];
 

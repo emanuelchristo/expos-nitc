@@ -5,6 +5,9 @@ alias currentPID R2;
 
 // Disk Load
 if(functionNum == 2) then
+	// Counting disk access
+	[SYSTEM_STATUS_TABLE + 6] = [SYSTEM_STATUS_TABLE + 6] + 1;
+
 	// Acquring disk
 	multipush(R0, R1, R2, R3, R4);
 	R1 = 3;

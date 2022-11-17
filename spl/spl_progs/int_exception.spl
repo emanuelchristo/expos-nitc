@@ -15,10 +15,10 @@ userSP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 13];
 
 
 if(EC != 0 || userSP == PTLR*512-1) then
-  print "EXCEPTION: ";
-  print "PID: ";
+  print "*EXCEPTION*";
+  print "pid: ";
   print [SYSTEM_STATUS_TABLE + 1];
-  print "Cause: ";
+  print "cause: ";
   if(EC == 1) then print "Illegal instruction"; endif;
   if(EC == 2) then print "Illegal memory access"; endif;
   if(EC == 3) then print "Arithmetic exception"; endif;
@@ -43,7 +43,7 @@ if(EPN >= 4 && EPN <= 7) then
   multipush(R0);
   R1 = 5;
   // Block num
-  R2 = [DISK_MAP_TABLE + [SYSTEM_STATUS_TABLE + 1]*10 + EPN];\
+  R2 = [DISK_MAP_TABLE + [SYSTEM_STATUS_TABLE + 1]*10 + EPN];
   call MOD_2;
   alias pageNum R2;
   pageNum = R0;

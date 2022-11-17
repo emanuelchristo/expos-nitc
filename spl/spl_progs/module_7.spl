@@ -204,7 +204,11 @@ endwhile;
 // Setting MEM_FREE_COUNT
 [SYSTEM_STATUS_TABLE + 2] = freeMem;
 
+[SYSTEM_STATUS_TABLE + 6] = 0;
+[SYSTEM_STATUS_TABLE + 7] = 0;
+
 // Setting up Disk Status table
 [DISK_STATUS_TABLE + 0] = 0;
+
 
 return;

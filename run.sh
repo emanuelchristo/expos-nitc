@@ -78,6 +78,10 @@ echo "COMPILING: forkpid.expl"
 ./expl ./expl_progs/forkpid.expl
 echo "COMPILING: readwrt.expl"
 ./expl ./expl_progs/readwrt.expl
+echo "COMPILING: parent.expl"
+./expl ./expl_progs/parent.expl
+echo "COMPILING: child.expl"
+./expl ./expl_progs/child.expl
 
 
 # LOADING KERNEL PROGRAMS ----------------------------
@@ -149,9 +153,13 @@ echo "LOADING: forkpid.xsm"
 ./xfs-interface load --exec ../expl/expl_progs/forkpid.xsm
 echo "LOADING: readwrt.xsm"
 ./xfs-interface load --exec ../expl/expl_progs/readwrt.xsm
+echo "LOADING: parent.xsm"
+./xfs-interface load --exec ../expl/expl_progs/parent.xsm
+echo "LOADING: child.xsm"
+./xfs-interface load --exec ../expl/expl_progs/child.xsm
 
 
 # RUNNING ----------------------------
 echo "Running XSM..."
 cd ../xsm
-./xsm --timer 1000
+./xsm --timer 1000 --debug

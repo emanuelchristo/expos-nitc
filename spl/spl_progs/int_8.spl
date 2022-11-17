@@ -114,9 +114,10 @@ endwhile;
 
 // Setting up child page table
 R2 = 0;
-while(R2 <= 15) do
-  [PAGE_TABLE_BASE + newPID*20 + R2] =[PAGE_TABLE_BASE + currPID*20 + R2];
-  [MEMORY_FREE_LIST + [PAGE_TABLE_BASE + currPID*20 + R2]] = [MEMORY_FREE_LIST + [PAGE_TABLE_BASE + currPID*20 + R2]] + 1;
+while(R2 < 8) do
+  [PAGE_TABLE_BASE + newPID*20 + 2*R2] =[PAGE_TABLE_BASE + currPID*20 + 2*R2];
+  [PAGE_TABLE_BASE + newPID*20 + 2*R2 + 1] =[PAGE_TABLE_BASE + currPID*20 + 2*R2 + 1];
+  [MEMORY_FREE_LIST + [PAGE_TABLE_BASE + currPID*20 + 2*R2]] = [MEMORY_FREE_LIST + [PAGE_TABLE_BASE + currPID*20 + 2*R2]] + 1;
   R2 = R2 + 1;
 endwhile;
 

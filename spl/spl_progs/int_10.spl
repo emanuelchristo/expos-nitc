@@ -1,5 +1,13 @@
 // INT 10 - EXIT
 
+// To check for disk access count, max memory, context switch count (stage 22, assg 2)
+// print "Mem free count";
+// print [SYSTEM_STATUS_TABLE + 2];
+// print "Disk access";
+// print [SYSTEM_STATUS_TABLE + 6];
+// print "Context switches";
+// print [SYSTEM_STATUS_TABLE + 7];
+
 print "INT 10";
 
 // Setting mode flag of current process to system call number
@@ -15,6 +23,7 @@ SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512 - 1;
 R1 = 3;
 R2 = [SYSTEM_STATUS_TABLE + 1];
 call MOD_1;
+
 
 // Calling scheduler
 call MOD_5;
