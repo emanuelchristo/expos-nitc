@@ -1,11 +1,14 @@
 // INT 10 - EXIT
 
-// To check for disk access count, max memory, context switch count (stage 22, assg 2)
+// Counting switch to kernel mode
+[SYSTEM_STATUS_TABLE + 6] = [SYSTEM_STATUS_TABLE + 6] + 1;
+
+// To switch to kernel mode, max memory, context switch count (stage 22, assg 3)
 // print "Mem free count";
 // print [SYSTEM_STATUS_TABLE + 2];
-// print "Disk access";
+// print "Kernel switch";
 // print [SYSTEM_STATUS_TABLE + 6];
-// print "Context switches";
+// print "Context switch";
 // print [SYSTEM_STATUS_TABLE + 7];
 
 print "INT 10";

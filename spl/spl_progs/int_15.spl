@@ -1,1 +1,4 @@
+// Counting switch to kernel mode
+[SYSTEM_STATUS_TABLE + 6] = [SYSTEM_STATUS_TABLE + 6] + 1;
+
 halt;

@@ -87,7 +87,7 @@ MOV R0,"Write"
 PUSH R0
 MOV R0,-2
 PUSH R0
-MOV R0,"even_num.xsm ...@i‡R"
+MOV R0,"even_num.xsm ...@i‡I"
 PUSH R0
 ADD SP,2
 CALL 0

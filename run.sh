@@ -82,6 +82,10 @@ echo "COMPILING: parent.expl"
 ./expl ./expl_progs/parent.expl
 echo "COMPILING: child.expl"
 ./expl ./expl_progs/child.expl
+echo "COMPILING: mrgsrt1.expl"
+./expl ./expl_progs/mrgsrt1.expl
+echo "COMPILING: mrgsrt2.expl"
+./expl ./expl_progs/mrgsrt2.expl
 
 
 # LOADING KERNEL PROGRAMS ----------------------------
@@ -157,6 +161,10 @@ echo "LOADING: parent.xsm"
 ./xfs-interface load --exec ../expl/expl_progs/parent.xsm
 echo "LOADING: child.xsm"
 ./xfs-interface load --exec ../expl/expl_progs/child.xsm
+echo "LOADING: mrgsrt1.xsm"
+./xfs-interface load --exec ../expl/expl_progs/mrgsrt1.xsm
+echo "LOADING: mrgsrt2.xsm"
+./xfs-interface load --exec ../expl/expl_progs/mrgsrt2.xsm
 
 
 # RUNNING ----------------------------
