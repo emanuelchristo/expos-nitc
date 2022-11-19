@@ -1,0 +1,14 @@
+int main() {
+  decl
+    string fileName;
+    int temp;
+  enddecl
+
+  begin
+    write("TOUCH");
+    write("Enter filename");
+    read(fileName);
+    temp = exposcall("Create", fileName, 1);
+    return 0;
+  end
+}
