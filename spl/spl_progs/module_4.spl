@@ -3,7 +3,36 @@
 alias functionNum R1;
 alias currentPID R2;
 
-// Disk Load
+// DISK STORE
+if(functionNum == 1) then
+	alias pageNumber R3;
+	alias blockNumber R4;
+
+	// Calling acquire disk
+	multipush(R0, R1, R2, R3, R4);
+	R1 = 3;
+	R2 = currentPID;
+	call MOD_0;
+	multipop(R0, R1, R2, R3, R4);
+
+	[DISK_STATUS_TABLE + 1] = 1; // Load/store bit
+	[DISK_STATUS_TABLE + 2] = pageNumber;
+	[DISK_STATUS_TABLE + 3] = blockNumber;
+	[DISK_STATUS_TABLE + 4] = currentPID;
+
+	store(pageNumber, blockNumber);
+
+	[PROCESS_TABLE + currentPID*16 + 4] = WAIT_DISK;
+
+	// Calling scheduler
+	multipush(R0, R1, R2, R3, R4);
+	call MOD_5;
+	multipop(R0, R1, R2, R3, R4);
+
+	return;
+endif;
+
+// DISK LOAD
 if(functionNum == 2) then
 	// Acquring disk
 	multipush(R0, R1, R2, R3, R4);
@@ -30,7 +59,7 @@ if(functionNum == 2) then
 endif;
 
 
-// Terminal Write
+// TERMINAL WRITE
 if(functionNum == 3) then
 	// Acquring terminal
 	multipush(R1, R2, R3);
@@ -52,7 +81,7 @@ if(functionNum == 3) then
 endif;
 
 
-// Terminal Read
+// TERMINAL READ
 if(functionNum == 4) then
 	// Acquring terminal
 	multipush(R1, R2, R3);

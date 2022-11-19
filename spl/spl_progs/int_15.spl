@@ -1,4 +1,60 @@
-// Counting switch to kernel mode
-[SYSTEM_STATUS_TABLE + 6] = [SYSTEM_STATUS_TABLE + 6] + 1;
+// INT 15 - SHUTDOWN
+
+alias sysCallNum R0;
+alias retAddr R1;
+
+// Extracting arguments from stack
+sysCallNum = [[PTBR + 2*(SP-5)/512]*512 + (SP-5)%512];
+retAddr = [PTBR + 2*(SP-1)/512]*512 + (SP-1)%512;
+
+// Setting mode flag
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 9] = sysCallNum;
+
+// Switching to kernel stack
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 13] = SP;
+SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 11]*512 - 1;
+
+// If not shell process or not root user
+if([SYSTEM_STATUS_TABLE + 1] != 1 || [PROCESS_TABLE + 16 + 3] != 1) then
+  [retAddr] = -1;
+  // Setting mode flag
+  [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 9] = 0;
+  // Switching to user stack
+  SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 13];
+  ireturn;
+endif;
+
+// Calling disk store
+multipush(R0, R1);
+
+// Storing inode table / user table
+R1 = 1;
+R2 = [SYSTEM_STATUS_TABLE + 1];
+R3 = 59;
+R4 = 3;
+call MOD_4;
+
+// Storing inode table / user table
+R1 = 1;
+R2 = [SYSTEM_STATUS_TABLE + 1];
+R3 = 60;
+R4 = 4;
+call MOD_4;
+
+// Storing root file
+R1 = 1;
+R2 = [SYSTEM_STATUS_TABLE + 1];
+R3 = 62;
+R4 = 5;
+call MOD_4;
+
+// Storing disk free list
+R1 = 1;
+R2 = [SYSTEM_STATUS_TABLE + 1];
+R3 = 61;
+R4 = 2;
+call MOD_4;
+
+multipop(R0, R1);
 
 halt;

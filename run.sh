@@ -2,6 +2,8 @@
 cd spl
 
 # Interrupts
+echo "COMPILING: int_4.spl"
+./spl ./spl_progs/int_4.spl
 echo "COMPILING: int_6.spl"
 ./spl ./spl_progs/int_6.spl
 echo "COMPILING: int_7.spl"
@@ -93,6 +95,8 @@ cd ../xfs-interface
 ./xfs-interface fdisk
 
 # Interrupts
+echo "LOADING: int_4.xsm"
+./xfs-interface load --int=4 ../spl/spl_progs/int_4.xsm
 echo "LOADING: int_6.xsm"
 ./xfs-interface load --int=6 ../spl/spl_progs/int_6.xsm
 echo "LOADING: int_7.xsm"

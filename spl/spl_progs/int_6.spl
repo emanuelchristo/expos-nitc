@@ -1,9 +1,5 @@
 // INT 6 - READ
 
-// Counting switch to kernel mode
-[SYSTEM_STATUS_TABLE + 6] = [SYSTEM_STATUS_TABLE + 6] + 1;
-
-
 alias sysCallNum R0;
 alias fileDescriptor R1;
 alias varLogicalAddr R2;

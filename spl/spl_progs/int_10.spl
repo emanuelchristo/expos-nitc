@@ -1,16 +1,5 @@
 // INT 10 - EXIT
 
-// Counting switch to kernel mode
-[SYSTEM_STATUS_TABLE + 6] = [SYSTEM_STATUS_TABLE + 6] + 1;
-
-// To switch to kernel mode, max memory, context switch count (stage 22, assg 3)
-// print "Mem free count";
-// print [SYSTEM_STATUS_TABLE + 2];
-// print "Kernel switch";
-// print [SYSTEM_STATUS_TABLE + 6];
-// print "Context switch";
-// print [SYSTEM_STATUS_TABLE + 7];
-
 print "INT 10";
 
 // Setting mode flag of current process to system call number

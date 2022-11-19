@@ -18,6 +18,10 @@ loadi(90,70);
 
 // LOADING INTERRUPTS ---------------------
 
+// Loading INT 4 - Create, Delete
+loadi(10,23);
+loadi(11,24);
+
 // Loading INT 6 - Read
 loadi(14,27);
 loadi(15,28);
@@ -136,6 +140,7 @@ temp = PAGE_TABLE_BASE + 20;
 // Process table setup for init process
 temp = PROCESS_TABLE + 16;
 [temp + 1] = 1;
+[temp + 3] = 1; // User id
 [temp + 4] = CREATED;
 [temp + 11] = 80;
 [temp + 12] = 0;
@@ -199,6 +204,23 @@ while(i < 128) do
   i = i + 1;
 endwhile;
 
+// Initializing file status table
+i = 0;
+while(i < MAX_FILE_NUM) do
+  [FILE_STATUS_TABLE + i*4 + 0] = -1;
+  [FILE_STATUS_TABLE + i*4 + 1] = -1;
+  i = i + 1;
+endwhile;
+
+// Initializing buffer table
+i = 0;
+while(i < MAX_BUFFER) do
+  [BUFFER_TABLE + i*4 + 0] = -1;
+  [BUFFER_TABLE + i*4 + 1] = 0;
+  [BUFFER_TABLE + i*4 + 2] = -1;
+  i = i + 1;
+endwhile;
+
 // Setting WAIT_MEM_COUNT
 [SYSTEM_STATUS_TABLE + 3] = 0;
 // Setting MEM_FREE_COUNT
@@ -209,6 +231,5 @@ endwhile;
 
 // Setting up Disk Status table
 [DISK_STATUS_TABLE + 0] = 0;
-
 
 return;

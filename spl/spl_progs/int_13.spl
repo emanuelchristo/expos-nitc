@@ -1,8 +1,5 @@
 // INT 13 - SEMGET, SEMRELEASE
 
-// Counting switch to kernel mode
-[SYSTEM_STATUS_TABLE + 6] = [SYSTEM_STATUS_TABLE + 6] + 1;
-
 alias sysCallNum R0;
 alias arg1 R1;
 alias retAddr R2;

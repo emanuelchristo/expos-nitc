@@ -1,8 +1,5 @@
 // print "TIMER";
 
-// Counting switch to kernel mode
-[SYSTEM_STATUS_TABLE + 6] = [SYSTEM_STATUS_TABLE + 6] + 1;
-
 // Save user stack pointer to process table entry
 [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 13] = SP;
 // Set SP to kernel stack

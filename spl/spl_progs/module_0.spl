@@ -18,6 +18,60 @@ if(R1 == 3) then
   return;
 endif;
 
+// ACQUIRE INODE
+if(R1 == 4) then
+  alias inodeIndex R2;
+  alias pid R3;
+
+  // If file is locked by some other process - wait in busy loop
+  while([FILE_STATUS_TABLE + inodeIndex*4 + 0] != -1) do
+    [PROCESS_TABLE + pid*16 + 4] = WAIT_FILE;
+    [PROCESS_TABLE + pid*16 + 5] = inodeIndex;
+    multipush(R0, R1, R2, R3);
+    call MOD_5;
+    multipop(R0, R1, R2, R3);
+  endwhile;
+
+  // File already deleted
+  if([INODE_TABLE + inodeIndex*16 + 1] == -1) then
+    R0 = -1;
+    return;
+  endif;
+
+  // Locking the file
+  [FILE_STATUS_TABLE + inodeIndex*4 + 0] = pid;
+
+  R0 = 0;
+  return;
+endif;
+
+// RELEASE INODE
+if(R1 == 5) then
+  alias inodeIndex R2;
+  alias pid R3;
+
+  // If given pid is not the locking pid
+  if([FILE_STATUS_TABLE + inodeIndex*4 + 0] != pid) then
+    R0 = -1;
+    return;
+  endif;
+
+  // Freeing the lock
+  [FILE_STATUS_TABLE + inodeIndex*4 + 0] = -1;
+
+  // Waking up processes waiting for the inode
+  R4 = 0;
+  while(R4 < MAX_PROC_NUM) do
+    if([PROCESS_TABLE + R4*16 + 4] == WAIT_FILE && [PROCESS_TABLE + R4*16 + 5] == inodeIndex) then
+      [PROCESS_TABLE + R4*16 + 4] = READY;
+    endif;
+    R4 = R4 + 1;
+  endwhile;
+
+  R0 = 0;
+  return;
+endif;
+
 // ACQUIRE SEMAPHORE
 if (R1 == 6) then
   alias pid R2;
