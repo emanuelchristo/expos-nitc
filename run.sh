@@ -90,6 +90,8 @@ echo "COMPILING: mrgsrt2.expl"
 ./expl ./expl_progs/mrgsrt2.expl
 echo "COMPILING: touch.expl"
 ./expl ./expl_progs/touch.expl
+echo "COMPILING: rm.expl"
+./expl ./expl_progs/rm.expl
 
 
 # LOADING KERNEL PROGRAMS ----------------------------
@@ -173,6 +175,8 @@ echo "LOADING: mrgsrt2.xsm"
 ./xfs-interface load --exec ../expl/expl_progs/mrgsrt2.xsm
 echo "LOADING: touch.xsm"
 ./xfs-interface load --exec ../expl/expl_progs/touch.xsm
+echo "LOADING: rm.xsm"
+./xfs-interface load --exec ../expl/expl_progs/rm.xsm
 
 
 # RUNNING ----------------------------
