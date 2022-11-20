@@ -108,7 +108,7 @@ while(R8 < 8) do
 
   // If file - increment open instance count
   if([currPPRT + R8*2] == FILE) then
-    R9 = OPEN_FILE_TABLE + [currPPRT + R6*2 + 1]*4 + 1;
+    R9 = OPEN_FILE_TABLE + [currPPRT + R8*2 + 1]*4 + 1;
     [R9 + 1] = [R9 + 1] + 1;
   endif;
 

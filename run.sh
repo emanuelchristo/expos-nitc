@@ -98,6 +98,8 @@ echo "COMPILING: rm.expl"
 ./expl ./expl_progs/rm.expl
 echo "COMPILING: cat.expl"
 ./expl ./expl_progs/cat.expl
+echo "COMPILING: shrlseek.expl"
+./expl ./expl_progs/shrlseek.expl
 
 
 # LOADING KERNEL PROGRAMS ----------------------------
@@ -189,6 +191,8 @@ echo "LOADING: rm.xsm"
 ./xfs-interface load --exec ../expl/expl_progs/rm.xsm
 echo "LOADING: cat.xsm"
 ./xfs-interface load --exec ../expl/expl_progs/cat.xsm
+echo "LOADING: shrlseek.xsm"
+./xfs-interface load --exec ../expl/expl_progs/shrlseek.xsm
 
 #LOADING DATA FILES ----------------------------
 echo "LOADING: sample.dat"
