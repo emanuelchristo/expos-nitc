@@ -1,4 +1,4 @@
-// INT 4 - FILE CREATE, FILE DELETE
+// INT 4 - CREATE, DELETE
 
 alias sysCallNum R0;
 alias fileName R1;

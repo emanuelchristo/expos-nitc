@@ -4,6 +4,8 @@ cd spl
 # Interrupts
 echo "COMPILING: int_4.spl"
 ./spl ./spl_progs/int_4.spl
+echo "COMPILING: int_5.spl"
+./spl ./spl_progs/int_5.spl
 echo "COMPILING: int_6.spl"
 ./spl ./spl_progs/int_6.spl
 echo "COMPILING: int_7.spl"
@@ -38,6 +40,8 @@ echo "COMPILING: module_1.spl"
 ./spl ./spl_progs/module_1.spl
 echo "COMPILING: module_2.spl"
 ./spl ./spl_progs/module_2.spl
+echo "COMPILING: module_3.spl"
+./spl ./spl_progs/module_3.spl
 echo "COMPILING: module_4.spl"
 ./spl ./spl_progs/module_4.spl
 echo "COMPILING: module_5.spl"
@@ -101,6 +105,8 @@ cd ../xfs-interface
 # Interrupts
 echo "LOADING: int_4.xsm"
 ./xfs-interface load --int=4 ../spl/spl_progs/int_4.xsm
+echo "LOADING: int_5.xsm"
+./xfs-interface load --int=5 ../spl/spl_progs/int_5.xsm
 echo "LOADING: int_6.xsm"
 ./xfs-interface load --int=6 ../spl/spl_progs/int_6.xsm
 echo "LOADING: int_7.xsm"
@@ -133,6 +139,8 @@ echo "LOADING: module_1.xsm"
 ./xfs-interface load --module 1 ../spl/spl_progs/module_1.xsm
 echo "LOADING: module_2.xsm"
 ./xfs-interface load --module 2 ../spl/spl_progs/module_2.xsm
+echo "LOADING: module_3.xsm"
+./xfs-interface load --module 3 ../spl/spl_progs/module_3.xsm
 echo "LOADING: module_4.xsm"
 ./xfs-interface load --module 4 ../spl/spl_progs/module_4.xsm
 echo "LOADING: module_7.xsm"

@@ -1,0 +1,191 @@
+// FILE MANAGER - MODULE 3
+
+alias functionNum R1;
+
+// BUFFERED READ
+if(functionNum == 2) then
+  alias blockNum R2;
+  alias offset R3;
+  alias memAddr R4;
+
+  alias buffNum R5;
+  buffNum = blockNum%4;
+
+  // Acquring the buffer
+  multipush(R1, R2, R3, R4, R5);
+  R1 = 1;
+  R2 = buffNum;
+  R3 = [SYSTEM_STATUS_TABLE + 1];
+  call MOD_0;
+  multipop(R1, R2, R3, R4, R5);
+
+  alias buffTableEntry R6;
+  buffTableEntry = BUFFER_TABLE + buffNum*4;
+
+  // If the buffer contains a different block
+  if([buffTableEntry] != blockNum) then
+    // If buffer contents are dirty
+    if([buffTableEntry + 1] == 1) then
+      // Calling disk store
+      multipush(R1, R2, R3, R4, R5, R6);
+      R1 = DISK_STORE;
+      R2 = [SYSTEM_STATUS_TABLE + 1];
+      R3 = BUFFER_BASE + buffNum; // Page number
+      R4 = [buffTableEntry]; // Block number
+      call MOD_4;
+      multipop(R1, R2, R3, R4, R5, R6);
+    endif;
+
+    multipush(R1, R2, R3, R4, R5, R6);
+    R1 = DISK_LOAD;
+    R2 = [SYSTEM_STATUS_TABLE + 1];
+    R3 = BUFFER_BASE + buffNum; // Page number
+    R4 = blockNum; // Block number
+    call MOD_4;
+    multipop(R1, R2, R3, R4, R5, R6);
+
+    [buffTableEntry] = blockNum;
+  endif;
+
+  [memAddr] = [BUFFER_BASE + buffNum + offset];
+
+  // Releasing buffer
+  R1 = RELEASE_BUFFER;
+  R2 = buffNum;
+  R3 = [SYSTEM_STATUS_TABLE + 1];
+  call MOD_0;
+
+  return;
+endif;
+
+// OPEN
+if(functionNum == 3) then
+  alias fileName R2;
+
+  // Finding filename in inode table
+  R3 = 0;
+  while(R3 < MAX_FILE_NUM) do
+    if([INODE_TABLE + R3*16 + 1] == fileName) then
+      break;
+    endif;
+    R3 = R3 + 1;
+  endwhile;
+
+  // If file not found
+  if(R3 == MAX_FILE_NUM) then
+    R0 = -1;
+    return;
+  endif;
+
+  alias inodeIndex R3;
+
+  // Acquring inode
+  multipush(R0, R1, R2, R3);
+  R1 = 4;
+  R2 = inodeIndex;
+  call MOD_0;
+  // If error
+  if(R0 != 0) then
+    R0 = -1;
+    return;
+  endif;
+  multipop(R0, R1, R2, R3);
+
+  // If filetype is EXEC return
+  if([INODE_TABLE + inodeIndex*16] == EXEC) then
+    // Releasing inode
+    R1 = 5;
+    R2 = inodeIndex;
+    R3 = [SYSTEM_STATUS_TABLE + 1];
+    call MOD_0;
+
+    R0 = -1;
+    return;
+  endif;
+
+  // Finding free entry in open file table
+  R4 = 0;
+  while(R4 < MAX_OPENFILE_NUM) do
+    if([OPEN_FILE_TABLE + R4*4] == -1) then
+      break;
+    endif;
+    R4 = R4 + 1;
+  endwhile;
+
+  // If no free entry
+  if(R4 == MAX_OPENFILE_NUM) then
+    // Releasing inode
+    R1 = 5;
+    R2 = inodeIndex;
+    R3 = [SYSTEM_STATUS_TABLE + 1];
+    call MOD_0;
+
+    R0 = -2;
+    return;
+  endif;
+
+  alias openFileIndex R4;
+  alias openFileEntry R5;
+  openFileEntry = [OPEN_FILE_TABLE + openFileIndex*4];
+
+  if(fileName == "root") then
+    [openFileEntry] = INODE_ROOT;
+  else
+    alias fileTableEntry R6;
+    fileTableEntry = FILE_STATUS_TABLE + inodeIndex*4;
+    if([fileTableEntry + 1] == -1) then 
+      [fileTableEntry + 1] = 1;
+    else
+      [fileTableEntry + 1] = [fileTableEntry] + 1;
+    endif;
+    [openFileEntry] = inodeIndex; // Inode index field
+  endif;
+
+  [openFileEntry + 1] = 1; // Open instance count
+  [openFileEntry + 2] = 0; // Lseek
+
+  // Releasing inode
+  multipush(R4);
+  R1 = 5;
+  R2 = inodeIndex;
+  R3 = [SYSTEM_STATUS_TABLE + 1];
+  call MOD_0;
+  multipop(R4);
+
+  R0 = openFileIndex;
+  return;
+endif;
+
+// CLOSE
+if(functionNum == 4) then
+  alias openFileIndex R2;
+
+  alias openFileEntry R3;
+  openFileEntry = OPEN_FILE_TABLE + openFileIndex*4;
+
+  alias inodeIndex R4;
+  inodeIndex = [openFileEntry];
+
+  alias fileTableEntry R5;
+  fileTableEntry = FILE_STATUS_TABLE + inodeIndex*4;
+
+  // Decrementing open file instance count
+  [openFileEntry + 1] = [openFileEntry + 1] - 1;
+
+  // If open file instance count is 0
+  if([openFileEntry + 1] == 0) then
+    if([openFileEntry] != INODE_ROOT) then
+      // Decrementing file open count
+      [fileTableEntry + 1] = [fileTableEntry + 1] - 1;
+    endif;
+
+    // If file open count is 0 set it to -1
+    if([fileTableEntry + 1] == 0) then
+      [fileTableEntry + 1] = -1;
+    endif;
+
+    [openFileEntry] = -1; // Inode index
+    [openFileEntry + 1] = -1; // Open instance count
+    [openFileEntry + 2] = -1; // Lseek
+  endif;
+endif;

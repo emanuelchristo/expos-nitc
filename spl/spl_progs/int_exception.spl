@@ -24,6 +24,8 @@ if(EC != 0 || userSP == PTLR*512-1) then
   if(EC == 3) then print "Arithmetic exception"; endif;
   if(userSP == PTLR*512-1) then print "Stack overflow"; endif;
 
+  breakpoint;
+
   // Calling exit process
   multipush(R0);
   R1 = 3;

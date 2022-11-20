@@ -11,28 +11,145 @@ fileDescriptor = [[PTBR + 2*(SP-4)/512]*512 + (SP-4)%512];
 varLogicalAddr = [[PTBR + 2*(SP-3)/512]*512 + (SP-3)%512];
 retAddr = [PTBR + 2*(SP-1)/512]*512 + (SP-1)%512;
 
+alias processTableEntry R4;
+processTableEntry = PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16;
+
 // Setting mode flag
-[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 9] = sysCallNum;
+[processTableEntry + 9] = sysCallNum;
 
 // Switching to kernel stack
-[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 13] = SP;
-SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 11]*512 - 1;
+[processTableEntry + 13] = SP;
+SP = [processTableEntry + 11]*512 - 1;
 
-if(fileDescriptor != -1) then
-	[retAddr] = -1;
-else
-	// Calling terminal read
-	multipush(R0, R1, R2, R3);
-	R1 = 4;
-	R3 = varLogicalAddr;
-	R2 = [SYSTEM_STATUS_TABLE + 1];
-	call MOD_4;
-	multipop(R0, R1, R2, R3);
-	[retAddr] = 0;
+// If read from terminal
+if(fileDescriptor == -1) then
+  // Calling terminal read
+  multipush(R0, R1, R2, R3, R4);
+  R1 = 4;
+  R3 = varLogicalAddr;
+  R2 = [SYSTEM_STATUS_TABLE + 1];
+  call MOD_4;
+  multipop(R0, R1, R2, R3, R4);
+  [retAddr] = 0;
+  // Returning to user process
+  [processTableEntry + 9] = 0;
+  SP = [processTableEntry + 13];
+  ireturn;
 endif;
 
-// Setting mode flag
-[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 9] = 0;
-// Switching to kernel stack
-SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 13];
+// If file descriptor is invalid
+if(fileDescriptor < 0 || fileDescriptor >= 8) then
+  [retAddr] = -1;
+  // Returning to user process
+  [processTableEntry + 9] = 0;
+  SP = [processTableEntry + 13];
+  ireturn;
+endif;
+
+alias PPRT R5;
+PPRT = [processTableEntry + 11]*512 + RESOURCE_TABLE_OFFSET;
+
+// If resource with given file descriptor is not a file
+if([PPRT + fileDescriptor*2] != FILE) then
+  [retAddr] = -1;
+  // Returning to user process
+  [processTableEntry + 9] = 0;
+  SP = [processTableEntry + 13];
+  ireturn;
+endif;
+
+alias openFileIndex R6;
+openFileIndex = [PPRT + fileDescriptor*2 + 1];
+
+alias inodeIndex R7;
+inodeIndex = [OPEN_FILE_TABLE + openFileIndex*4];
+
+// Acquring inode
+multipush(R0, R1, R2, R3, R4, R5, R6, R7);
+R1 = 5;
+R2 = inodeIndex;
+R3 = [SYSTEM_STATUS_TABLE + 1];
+call MOD_0;
+// Failed to acquire inode
+if(R0 != 0) then
+  [retAddr] = -1;
+  // Returning to user process
+  [processTableEntry + 9] = 0;
+  SP = [processTableEntry + 13];
+  ireturn;
+endif;
+multipop(R0, R1, R2, R3, R4, R5, R6, R7);
+
+alias lSeek R8;
+lSeek = [OPEN_FILE_TABLE + openFileIndex*4 + 2];
+
+alias varPhysicalAddr R9;
+varPhysicalAddr = [PTBR + 2*varLogicalAddr/512]*512 + varLogicalAddr%512;
+
+// If it is root file
+if(inodeIndex == INODE_ROOT) then
+  // At end of root file
+  if(lSeek == 480) then
+    multipush(R3, R4);
+    // Releasing inode
+    R1 = 5;
+    R2 = inodeIndex;
+    R3 = [SYSTEM_STATUS_TABLE + 1];
+    call MOD_0;
+    multipop(R3, R4);
+
+    [retAddr] = -2;
+    // Returning to user process
+    [processTableEntry + 9] = 0;
+    SP = [processTableEntry + 13];
+    ireturn;
+  endif;
+
+  // Reading word
+  [varPhysicalAddr] = [ROOT_FILE + lSeek];
+  // Incrementing lSeek
+  [OPEN_FILE_TABLE + openFileIndex*4 + 2] =  [OPEN_FILE_TABLE + openFileIndex*4 + 2] + 1;
+else
+  // If seek at end of file
+  if(lSeek == [INODE_TABLE + inodeIndex*16 + 2]) then
+    multipush(R3, R4);
+    // Releasing inode
+    R1 = 5;
+    R2 = inodeIndex;
+    R3 = [SYSTEM_STATUS_TABLE + 1];
+    call MOD_0;
+    multipop(R3, R4);
+
+    [retAddr] = -2;
+    // Returning to user process
+    [processTableEntry + 9] = 0;
+    SP = [processTableEntry + 13];
+    ireturn;
+  endif;
+
+  multipush(R7, R8, R9, R6, R4, R3);
+  // Calling buffer read
+  R1 = 2;
+  R2 = [INODE_TABLE + inodeIndex*16 + 8 + lSeek/512]; // Disk block number
+  R3 = lSeek%512; // Offset
+  R4 = varPhysicalAddr;
+  call MOD_3;
+  multipop(R7, R8, R9, R6, R4, R3);
+
+  // Incrementing lSeek
+  [OPEN_FILE_TABLE + openFileIndex*4 + 2] =  [OPEN_FILE_TABLE + openFileIndex*4 + 2] + 1;
+endif;
+
+multipush(R3, R4);
+// Releasing inode
+R1 = 5;
+R2 = inodeIndex;
+R3 = [SYSTEM_STATUS_TABLE + 1];
+call MOD_0;
+multipop(R3, R4);
+
+[retAddr] = 0;
+// Returning to user process
+[processTableEntry + 9] = 0;
+SP = [processTableEntry + 13];
 ireturn;

@@ -33,11 +33,19 @@ if(functionNum == 2) then
   call MOD_2;
   multipop(R0, R1, R2, R3);
   
-  // Releasing semaphores
+  // Releasing semaphores and closing files
   R4 = 0;
   alias PPRT R5;
   PPRT = [PROCESS_TABLE + pid*16 + 11]*512 + 512 - 16;
   while(R4 < 8) do
+    // If it is a file, close file
+    if([PPRT + R4*2] == FILE) then
+      multipush(R0, R1, R2, R3, R4, R5);
+      R1 = 4;
+      R2 = [PPRT + R4*2 + 1];
+      call MOD_3;
+      multipop(R0, R1, R2, R3, R4, R5);
+    endif;
     // If it is a semaphore, release semaphore
     if([PPRT + R4*2] == SEMAPHORE) then
       multipush(R0, R1, R2, R3, R4, R5);

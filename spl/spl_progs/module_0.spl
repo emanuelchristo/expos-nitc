@@ -1,5 +1,52 @@
 // RESOURCE MANAGER - MODULE 0
 
+// ACQUIRE BUFFER
+if(R1 == 1) then
+  alias buffNum R2;
+  alias pid R3;
+
+  // If buffer already locked
+  while([BUFFER_TABLE + buffNum*4 + 2] != -1) do
+    [PROCESS_TABLE + pid*16 + 4] = WAIT_BUFFER;
+    [PROCESS_TABLE + pid*16 + 5] = buffNum;
+    multipush(R1, R2, R3);
+    call MOD_5;
+    multipop(R1, R2, R3);
+  endwhile;
+
+  // Locking the buffer
+  [BUFFER_TABLE + buffNum*4 + 2] = pid;
+
+  return;
+endif;
+
+// RELEASE BUFFER
+if(R1 == 2) then
+  alias buffNum R2;
+  alias pid R3;
+
+  // If locking pid is not the given pid
+  if([BUFFER_TABLE + buffNum*4 + 2] != pid) then
+    R0 = -1;
+    return;
+  endif;
+
+  // Unlocking buffer
+  [BUFFER_TABLE + buffNum*4 + 2] = -1;
+
+  // Readying processes waiting for this buffer
+  R4 = 0;
+  while(R4 < MAX_PROC_NUM) do
+    if([PROCESS_TABLE + R4*16 + 4] == WAIT_BUFFER && [PROCESS_TABLE + R4*16 + 5] == buffNum) then
+      [PROCESS_TABLE + R4*16 + 4] = READY;
+    endif;
+    R4 = R4 + 1;
+  endwhile;
+
+  R0 = 0;
+  return;
+endif;
+
 // ACQUIRE DISK
 if(R1 == 3) then
   // Disk in use
