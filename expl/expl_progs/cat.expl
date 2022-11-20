@@ -1,0 +1,30 @@
+int main() {
+  decl
+    str fileName, word;
+    int fd, temp;
+  enddecl
+
+  begin
+    write("CAT PROGRAM");
+    write("Filename:");
+    read(fileName);
+
+    fd = exposcall("Open", fileName);
+
+    if(fd < 0) then
+      write("Open fail");
+    else
+      temp = exposcall("Read", fd, word);
+      while(temp == 0) do
+        write(word);
+        temp = exposcall("Read", fd, word);
+      endwhile;
+
+      write("-- End --");
+
+      temp = exposcall("Close", fd);
+    endif;
+
+    return 0;
+  end
+}

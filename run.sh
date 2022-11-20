@@ -96,6 +96,8 @@ echo "COMPILING: touch.expl"
 ./expl ./expl_progs/touch.expl
 echo "COMPILING: rm.expl"
 ./expl ./expl_progs/rm.expl
+echo "COMPILING: cat.expl"
+./expl ./expl_progs/cat.expl
 
 
 # LOADING KERNEL PROGRAMS ----------------------------
@@ -185,6 +187,14 @@ echo "LOADING: touch.xsm"
 ./xfs-interface load --exec ../expl/expl_progs/touch.xsm
 echo "LOADING: rm.xsm"
 ./xfs-interface load --exec ../expl/expl_progs/rm.xsm
+echo "LOADING: cat.xsm"
+./xfs-interface load --exec ../expl/expl_progs/cat.xsm
+
+#LOADING DATA FILES ----------------------------
+echo "LOADING: sample.dat"
+./xfs-interface load --data ../data-files/sample.dat
+echo "LOADING: numbers.dat"
+./xfs-interface load --data ../data-files/numbers.dat
 
 
 # RUNNING ----------------------------
