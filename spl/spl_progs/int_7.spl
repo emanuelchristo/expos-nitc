@@ -1,48 +1,175 @@
 // INT 7 - WRITE
 
-// Setting mode flag of current process to system call number
-[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 5;
-
-// Save user stack pointer to process table entry
-[PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 13] = SP;
-
-// Set SP to kernel stack
-SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512 - 1;
-
-backup;
-
-alias userSP R0;
-userSP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 13];
-
+alias sysCallNum R0;
 alias fileDescriptor R1;
-fileDescriptor = [[PTBR + 2*((userSP-4)/512)]*512 + (userSP-4)%512];
+alias word R2;
+alias retAddr R3;
 
+// Extracting arguments from stack
+sysCallNum = [[PTBR + 2*(SP-5)/512]*512 + (SP-5)%512];
+fileDescriptor = [[PTBR + 2*(SP-4)/512]*512 + (SP-4)%512];
+word = [[PTBR + 2*(SP-3)/512]*512 + (SP-3)%512];
+retAddr = [PTBR + 2*(SP-1)/512]*512 + (SP-1)%512;
 
-alias physicalAddrRetVal R2;
-physicalAddrRetVal = [PTBR + 2*((userSP-1)/512)]*512 + (userSP-1)%512;
-// fileDescriptor not valid
-if (fileDescriptor != -2) 
-then
-// Setting return value to -1
-  [physicalAddrRetVal] = -1;
-else
-  // Printing the output
-  multipush(R0, R1, R2);
-  R1 = 3;
+alias processTableEntry R4;
+processTableEntry = PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16;
+
+// Setting mode flag
+[processTableEntry + 9] = sysCallNum;
+
+// Switching to kernel stack
+[processTableEntry + 13] = SP;
+SP = [processTableEntry + 11]*512 - 1;
+
+// If write to terminal
+if(fileDescriptor == -2) then
+  // Calling terminal write
+  multipush(R0, R1, R2, R3, R4);
+  R1 = TERMINAL_WRITE;
+  R3 = word;
   R2 = [SYSTEM_STATUS_TABLE + 1];
-  R3 = [[PTBR + 2*((userSP-3)/512)]*512 + (userSP-3)%512];
   call MOD_4;
-  multipop(R0, R1, R2);
-  [physicalAddrRetVal] = 0;
+  multipop(R0, R1, R2, R3, R4);
+  [retAddr] = 0;
+  // Returning to user process
+  [processTableEntry + 9] = 0;
+  SP = [processTableEntry + 13];
+  ireturn;
 endif;
 
-restore;
+// If file descriptor is invalid
+if(fileDescriptor < 0 || fileDescriptor >= 8) then
+  [retAddr] = -1;
+  // Returning to user process
+  [processTableEntry + 9] = 0;
+  SP = [processTableEntry + 13];
+  ireturn;
+endif;
 
+alias PPRT R5;
+PPRT = [processTableEntry + 11]*512 + RESOURCE_TABLE_OFFSET;
 
-// Setting SP to user stack
-SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 13];
+// If resource with given file descriptor is not a file
+if([PPRT + fileDescriptor*2] != FILE) then
+  [retAddr] = -1;
+  // Returning to user process
+  [processTableEntry + 9] = 0;
+  SP = [processTableEntry + 13];
+  ireturn;
+endif;
 
-// Setting mode flag to 0
-[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
+alias openFileIndex R6;
+openFileIndex = [PPRT + fileDescriptor*2 + 1];
 
+alias inodeIndex R7;
+inodeIndex = [OPEN_FILE_TABLE + openFileIndex*4];
+
+alias inodeTableEntry R8;
+inodeTableEntry = INODE_TABLE + inodeIndex*16;
+
+// If file permission set to exclusive AND user is not root AND current user has no permission
+if( [inodeTableEntry + 4] == EXCLUSIVE && 
+[processTableEntry + 3] != ROOT && 
+[inodeTableEntry + 3] != [processTableEntry + 3]) then
+[retAddr] = -3;
+// Returning to user process
+[processTableEntry + 9] = 0;
+SP = [processTableEntry + 13];
+ireturn;
+endif;
+
+// Acquring inode
+multipush(R0, R1, R2, R3, R4, R5, R6, R7, R8);
+R1 = 4;
+R2 = inodeIndex;
+R3 = [SYSTEM_STATUS_TABLE + 1];
+call MOD_0;
+R9 = R0;
+multipop(R0, R1, R2, R3, R4, R5, R6, R7, R8);
+// Failed to acquire inode
+if(R9 != 0) then
+  [retAddr] = -1;
+  // Returning to user process
+  [processTableEntry + 9] = 0;
+  SP = [processTableEntry + 13];
+  ireturn;
+endif;
+
+alias lSeek R9;
+lSeek = [OPEN_FILE_TABLE + openFileIndex*4 + 2];
+
+// If seek at end of file
+if(lSeek == MAX_FILE_SIZE) then
+  // Releasing inode
+  multipush(R3, R4);
+  R1 = 5;
+  R2 = inodeIndex;
+  R3 = [SYSTEM_STATUS_TABLE + 1];
+  call MOD_0;
+  multipop(R3, R4);
+  [retAddr] = -2;
+  // Returning to user process
+  [processTableEntry + 9] = 0;
+  SP = [processTableEntry + 13];
+  ireturn;
+endif;
+
+if(lSeek%512 == 0 && lSeek == [inodeTableEntry + 2]) then
+  // Calling get free block
+  multipush(R0, R1, R2, R3, R4, R5, R6, R7, R8, R9);
+  R1 = GET_FREE_BLOCK;
+  call MOD_2;
+  R10 = R0;
+  multipop(R0, R1, R2, R3, R4, R5, R6, R7, R8, R9);
+  // No free block available
+  if(R10 == -1) then
+    // Releasing inode
+    multipush(R3, R4);
+    R1 = 5;
+    R2 = inodeIndex;
+    R3 = [SYSTEM_STATUS_TABLE + 1];
+    call MOD_0;
+    multipop(R3, R4);
+
+    [retAddr] = -2;
+    // Returning to user process
+    [processTableEntry + 9] = 0;
+    SP = [processTableEntry + 13];
+    ireturn;
+  endif;
+
+  // Setting new disk block num to indoe table
+  [inodeTableEntry + 8 + lSeek/512] = R10;
+endif;
+
+// Calling buffered write
+multipush(R0, R1, R2, R3, R4, R5, R6, R7, R8, R9);
+R1 = BUFFERED_WRITE;
+R4 = word;
+R2 = [inodeTableEntry + 8 + lSeek/512];
+R3 = lSeek%512;
+call MOD_3;
+multipop(R0, R1, R2, R3, R4, R5, R6, R7, R8, R9);
+
+// If lSeek is equal to file size
+if(lSeek == [inodeTableEntry + 2]) then
+  [inodeTableEntry + 2] = [inodeTableEntry + 2] + 1;
+  [ROOT_FILE + inodeIndex*8 + 1] = [ROOT_FILE + inodeIndex*8 + 1] + 1;
+endif;
+
+// Incrementing lSeek
+[OPEN_FILE_TABLE + openFileIndex*4 + 2] = [OPEN_FILE_TABLE + openFileIndex*4 + 2] + 1;
+
+// Releasing inode
+multipush(R3, R4);
+R1 = 5;
+R2 = inodeIndex;
+R3 = [SYSTEM_STATUS_TABLE + 1];
+call MOD_0;
+multipop(R3, R4);
+
+[retAddr] = 0;
+// Returning to user process
+[processTableEntry + 9] = 0;
+SP = [processTableEntry + 13];
 ireturn;

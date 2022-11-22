@@ -2,11 +2,11 @@
 
 alias functionNum R1;
 
-// BUFFERED READ
-if(functionNum == 2) then
+// BUFFERED READ / BUFFERED WRITE
+if(functionNum == 1 || functionNum == 2) then
   alias blockNum R2;
   alias offset R3;
-  alias memAddr R4;
+  alias arg3 R4;
 
   alias buffNum R5;
   buffNum = blockNum%4;
@@ -36,6 +36,13 @@ if(functionNum == 2) then
       multipop(R1, R2, R3, R4, R5, R6);
     endif;
 
+    // Filling buffer with null
+    R7 = 0;
+    while(R7 < 512) do
+      [(BUFFER_BASE + buffNum)*512 + R7] = "\0";
+      R7 = R7 + 1;
+    endwhile;
+
     multipush(R1, R2, R3, R4, R5, R6);
     R1 = DISK_LOAD;
     R4 = blockNum; // Block number
@@ -47,7 +54,16 @@ if(functionNum == 2) then
     [buffTableEntry] = blockNum;
   endif;
 
-  [memAddr] = [(BUFFER_BASE + buffNum)*512 + offset];
+  // Read
+  if(functionNum == 2) then
+    [arg3] = [(BUFFER_BASE + buffNum)*512 + offset];
+  endif;
+
+  // Write
+  if(functionNum == 1) then
+    [(BUFFER_BASE + buffNum)*512 + offset] = arg3;
+    [buffTableEntry + 1] = 1; // Setting dirty bit
+  endif;
 
   // Releasing buffer
   R1 = RELEASE_BUFFER;

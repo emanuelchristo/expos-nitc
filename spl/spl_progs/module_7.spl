@@ -108,6 +108,9 @@ loadi(51,64);
 loadi(59,3);
 loadi(60,4);
 
+// Loading root file
+loadi(62,5);
+
 // Loading disk free list
 loadi(61, 2);
 

@@ -100,10 +100,13 @@ echo "COMPILING: cat.expl"
 ./expl ./expl_progs/cat.expl
 echo "COMPILING: shrlseek.expl"
 ./expl ./expl_progs/shrlseek.expl
+echo "COMPILING: login.expl"
+./expl ./expl_progs/login.expl
 
 
 # LOADING KERNEL PROGRAMS ----------------------------
 cd ../xfs-interface
+rm disk.xfs
 ./xfs-interface fdisk
 
 # Interrupts
@@ -164,7 +167,7 @@ echo "LOADING: library.lib"
 echo "LOADING: idle.xsm"
 ./xfs-interface load --idle ../expl/expl_progs/idle.xsm
 echo "LOADING: shell2.xsm"
-./xfs-interface load --init ../expl/expl_progs/shell2.xsm
+./xfs-interface load --exec ../expl/expl_progs/shell2.xsm
 echo "LOADING: odd_num.xsm"
 ./xfs-interface load --exec ../expl/expl_progs/odd_num.xsm
 echo "LOADING: even_num.xsm"
@@ -193,6 +196,9 @@ echo "LOADING: cat.xsm"
 ./xfs-interface load --exec ../expl/expl_progs/cat.xsm
 echo "LOADING: shrlseek.xsm"
 ./xfs-interface load --exec ../expl/expl_progs/shrlseek.xsm
+echo "LOADING: login.xsm"
+./xfs-interface load --init ../expl/expl_progs/login.xsm
+
 
 #LOADING DATA FILES ----------------------------
 echo "LOADING: sample.dat"
@@ -204,4 +210,4 @@ echo "LOADING: numbers.dat"
 # RUNNING ----------------------------
 echo "Running XSM..."
 cd ../xsm
-./xsm --timer 1000 --debug
+./xsm --timer 1000

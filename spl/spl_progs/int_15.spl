@@ -15,7 +15,7 @@ retAddr = [PTBR + 2*(SP-1)/512]*512 + (SP-1)%512;
 SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 11]*512 - 1;
 
 // If not shell process or not root user
-if([SYSTEM_STATUS_TABLE + 1] != 1 || [PROCESS_TABLE + 16 + 3] != 1) then
+if([SYSTEM_STATUS_TABLE + 1] != 2 || [PROCESS_TABLE + 16 + 3] != 1) then
   [retAddr] = -1;
   // Setting mode flag
   [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 9] = 0;
@@ -23,6 +23,29 @@ if([SYSTEM_STATUS_TABLE + 1] != 1 || [PROCESS_TABLE + 16 + 3] != 1) then
   SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 13];
   ireturn;
 endif;
+
+// Calling kill all
+multipush(R0, R1);
+R1 = KILL_ALL;
+R2 = [SYSTEM_STATUS_TABLE + 1];
+call MOD_1;
+multipop(R0, R1);
+
+// Storing dirty buffer pages to disk
+R2 = 0;
+while(R2 < MAX_BUFFER) do
+  if([BUFFER_TABLE + R2*4 + 1] == 1) then
+    multipush(R0, R1, R2);
+    // Storing inode table / user table
+    R1 = DISK_STORE;
+    R4 = [BUFFER_TABLE + R2*4];
+    R3 = BUFFER_BASE + R2;
+    R2 = [SYSTEM_STATUS_TABLE + 1];
+    call MOD_4;
+    multipop(R0, R1, R2);
+  endif;
+  R2 = R2 + 1;
+endwhile;
 
 // Calling disk store
 multipush(R0, R1);
