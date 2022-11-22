@@ -104,6 +104,8 @@ echo "COMPILING: login.expl"
 ./expl ./expl_progs/login.expl
 echo "COMPILING: filewrt.expl"
 ./expl ./expl_progs/filewrt.expl
+echo "COMPILING: filewrt2.expl"
+./expl ./expl_progs/filewrt2.expl
 
 
 # LOADING KERNEL PROGRAMS ----------------------------
@@ -202,6 +204,8 @@ echo "LOADING: login.xsm"
 ./xfs-interface load --init ../expl/expl_progs/login.xsm
 echo "LOADING: filewrt.xsm"
 ./xfs-interface load --exec ../expl/expl_progs/filewrt.xsm
+echo "LOADING: filewrt2.xsm"
+./xfs-interface load --exec ../expl/expl_progs/filewrt2.xsm
 
 
 #LOADING DATA FILES ----------------------------
