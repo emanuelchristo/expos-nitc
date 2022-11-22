@@ -102,6 +102,8 @@ echo "COMPILING: shrlseek.expl"
 ./expl ./expl_progs/shrlseek.expl
 echo "COMPILING: login.expl"
 ./expl ./expl_progs/login.expl
+echo "COMPILING: filewrt.expl"
+./expl ./expl_progs/filewrt.expl
 
 
 # LOADING KERNEL PROGRAMS ----------------------------
@@ -198,6 +200,8 @@ echo "LOADING: shrlseek.xsm"
 ./xfs-interface load --exec ../expl/expl_progs/shrlseek.xsm
 echo "LOADING: login.xsm"
 ./xfs-interface load --init ../expl/expl_progs/login.xsm
+echo "LOADING: filewrt.xsm"
+./xfs-interface load --exec ../expl/expl_progs/filewrt.xsm
 
 
 #LOADING DATA FILES ----------------------------
