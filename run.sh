@@ -106,6 +106,8 @@ echo "COMPILING: filewrt.expl"
 ./expl ./expl_progs/filewrt.expl
 echo "COMPILING: filewrt2.expl"
 ./expl ./expl_progs/filewrt2.expl
+echo "COMPILING: frkrdwrt.expl"
+./expl ./expl_progs/frkrdwrt.expl
 
 
 # LOADING KERNEL PROGRAMS ----------------------------
@@ -206,6 +208,8 @@ echo "LOADING: filewrt.xsm"
 ./xfs-interface load --exec ../expl/expl_progs/filewrt.xsm
 echo "LOADING: filewrt2.xsm"
 ./xfs-interface load --exec ../expl/expl_progs/filewrt2.xsm
+echo "LOADING: frkrdwrt.xsm"
+./xfs-interface load --exec ../expl/expl_progs/frkrdwrt.xsm
 
 
 #LOADING DATA FILES ----------------------------
@@ -218,4 +222,4 @@ echo "LOADING: numbers.dat"
 # RUNNING ----------------------------
 echo "Running XSM..."
 cd ../xsm
-./xsm --timer 1000
+./xsm --timer 1000 --debug

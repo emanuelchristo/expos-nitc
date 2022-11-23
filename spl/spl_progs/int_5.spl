@@ -50,7 +50,7 @@ if(sysCallNum == 2) then
   // Calling open in file manager module
   multipush(R0, R1, R2, R3, R4, R5);
   R2 = fileName;
-  R1 = 3;
+  R1 = OPEN;
   call MOD_3;
   alias fileTableIndex R6;
   fileTableIndex = R0;
@@ -64,7 +64,7 @@ if(sysCallNum == 2) then
   endif;
 
   [PPRT + 2*indexPPRT] = FILE;
-  [PPRT + 2*indexPPRT] = fileTableIndex;
+  [PPRT + 2*indexPPRT + 1] = fileTableIndex;
 
   [retAddr] = indexPPRT;
   // Returning to user process

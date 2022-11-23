@@ -10,10 +10,10 @@ int main() {
 
     // If child process
     if(pid == 0) then
-      write("odd_num.xsm ...");
+      write("odd_num.xsm");
       temp = exposcall("Exec", "odd_num.xsm");
     else
-      write("even_num.xsm ...");
+      write("even_num.xsm");
       temp = exposcall("Exec", "even_num.xsm");
     endif;
 
