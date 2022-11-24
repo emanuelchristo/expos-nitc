@@ -18,12 +18,18 @@ echo "COMPILING: int_10.spl"
 ./spl ./spl_progs/int_10.spl
 echo "COMPILING: int_11.spl"
 ./spl ./spl_progs/int_11.spl
+echo "COMPILING: int_12.spl"
+./spl ./spl_progs/int_12.spl
 echo "COMPILING: int_13.spl"
 ./spl ./spl_progs/int_13.spl
 echo "COMPILING: int_14.spl"
 ./spl ./spl_progs/int_14.spl
 echo "COMPILING: int_15.spl"
 ./spl ./spl_progs/int_15.spl
+echo "COMPILING: int_16.spl"
+./spl ./spl_progs/int_16.spl
+echo "COMPILING: int_17.spl"
+./spl ./spl_progs/int_17.spl
 echo "COMPILING: int_timer.spl"
 ./spl ./spl_progs/int_timer.spl
 echo "COMPILING: int_console.spl"
@@ -108,6 +114,16 @@ echo "COMPILING: filewrt2.expl"
 ./expl ./expl_progs/filewrt2.expl
 echo "COMPILING: frkrdwrt.expl"
 ./expl ./expl_progs/frkrdwrt.expl
+echo "COMPILING: extshell.expl"
+./expl ./expl_progs/extshell.expl
+echo "COMPILING: lu.expl"
+./expl ./expl_progs/lu.expl
+echo "COMPILING: ru.expl"
+./expl ./expl_progs/ru.expl
+echo "COMPILING: ls.expl"
+./expl ./expl_progs/ls.expl
+echo "COMPILING: cp.expl"
+./expl ./expl_progs/cp.expl
 
 
 # LOADING KERNEL PROGRAMS ----------------------------
@@ -132,12 +148,18 @@ echo "LOADING: int_10.xsm"
 ./xfs-interface load --int=10 ../spl/spl_progs/int_10.xsm
 echo "LOADING: int_11.xsm"
 ./xfs-interface load --int=11 ../spl/spl_progs/int_11.xsm
+echo "LOADING: int_12.xsm"
+./xfs-interface load --int=12 ../spl/spl_progs/int_12.xsm
 echo "LOADING: int_13.xsm"
 ./xfs-interface load --int=13 ../spl/spl_progs/int_13.xsm
 echo "LOADING: int_14.xsm"
 ./xfs-interface load --int=14 ../spl/spl_progs/int_14.xsm
 echo "LOADING: int_15.xsm"
 ./xfs-interface load --int=15 ../spl/spl_progs/int_15.xsm
+echo "LOADING: int_16.xsm"
+./xfs-interface load --int=16 ../spl/spl_progs/int_16.xsm
+echo "LOADING: int_17.xsm"
+./xfs-interface load --int=17 ../spl/spl_progs/int_17.xsm
 echo "LOADING: int_timer.xsm"
 ./xfs-interface load --int=timer ../spl/spl_progs/int_timer.xsm
 echo "LOADING: int_console.xsm"
@@ -210,6 +232,16 @@ echo "LOADING: filewrt2.xsm"
 ./xfs-interface load --exec ../expl/expl_progs/filewrt2.xsm
 echo "LOADING: frkrdwrt.xsm"
 ./xfs-interface load --exec ../expl/expl_progs/frkrdwrt.xsm
+echo "LOADING: extshell.xsm"
+./xfs-interface load --shell ../expl/expl_progs/extshell.xsm
+echo "LOADING: lu.xsm"
+./xfs-interface load --exec ../expl/expl_progs/lu.xsm
+echo "LOADING: ru.xsm"
+./xfs-interface load --exec ../expl/expl_progs/ru.xsm
+echo "LOADING: ls.xsm"
+./xfs-interface load --exec ../expl/expl_progs/ls.xsm
+echo "LOADING: cp.xsm"
+./xfs-interface load --exec ../expl/expl_progs/cp.xsm
 
 
 #LOADING DATA FILES ----------------------------

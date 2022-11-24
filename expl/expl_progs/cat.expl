@@ -1,15 +1,14 @@
 int main() {
   decl
-    str fileName, word;
+    str filename, word;
     int fd, temp;
   enddecl
 
   begin
-    write("CAT PROGRAM");
-    write("Filename:");
-    read(fileName);
+    write("Filename");
+    read(filename);
 
-    fd = exposcall("Open", fileName);
+    fd = exposcall("Open", filename);
 
     if(fd < 0) then
       write("Open fail");
@@ -19,8 +18,6 @@ int main() {
         write(word);
         temp = exposcall("Read", fd, word);
       endwhile;
-
-      write("-- End --");
 
       temp = exposcall("Close", fd);
     endif;

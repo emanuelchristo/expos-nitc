@@ -1,15 +1,27 @@
 int main() {
   decl
     int temp;
+    str username, password;
   enddecl
 
   begin
-    temp = exposcall("Fork");
-    if(temp == 0) then
-      temp = exposcall("Exec", "shell2.xsm");
-    else
-      temp = exposcall("Wait", temp);
-    endif;
+    while(1==1) do
+      write("-- LOGIN --");
+      write("Username");
+      read(username);
+      write("Password");
+      read(password);
+
+      temp = exposcall("Login", username, password);
+
+      if(temp == -1) then
+        write("Invalid");
+      endif;
+
+      if(temp == -2) then
+        write("No permission");
+      endif;
+    endwhile;
     return 0;
   end
 }

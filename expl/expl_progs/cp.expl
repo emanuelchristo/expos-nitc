@@ -1,0 +1,40 @@
+int main() {
+  decl
+    int fileFrom, fileTo, word;
+    int i, flag, fdFrom, fdTo, temp, temp2;
+  enddecl
+
+  begin
+    flag = 0;
+
+    write("File from");
+    read(fileFrom);
+    write("File to");
+    read(fileTo);
+
+    fdFrom = exposcall("Open", fileFrom);
+    if(fdFrom < 0) then
+      write("Open fail");
+      flag = 1;
+    else
+      temp = exposcall("Create", fileTo, 1);
+      if(temp < 0) then
+        write("Create fail");
+        flag = 1;
+      endif;
+    endif;
+
+    if(flag == 0) then
+      fdTo = exposcall("Open", fileTo);
+      temp = 0;
+      while(temp >= 0) do
+        temp = exposcall("Read", fdFrom, word);
+        temp2 = exposcall("Write", fdTo, word);
+      endwhile;
+      temp = exposcall("Close", fdFrom);
+      temp = exposcall("Close", fdTo);
+    endif;
+
+    return 0;
+  end
+}

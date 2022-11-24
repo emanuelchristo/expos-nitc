@@ -1,0 +1,249 @@
+// INT 15 - NEWUSR, REMUSR, SETPWD, GETUNAME, GETUID
+
+alias sysCallNum R0;
+alias arg1 R1;
+alias arg2 R2;
+alias arg3 R3;
+alias retAddr R4;
+
+// Extracting arguments from stack
+sysCallNum = [[PTBR + 2*(SP-5)/512]*512 + (SP-5)%512];
+arg1 = [[PTBR + 2*(SP-4)/512]*512 + (SP-4)%512];
+arg2 = [[PTBR + 2*(SP-3)/512]*512 + (SP-3)%512];
+arg3 = [[PTBR + 2*(SP-2)/512]*512 + (SP-2)%512];
+retAddr = [PTBR + 2*(SP-1)/512]*512 + (SP-1)%512;
+
+alias processTableEntry R5;
+processTableEntry = PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16;
+
+// Setting mode flag
+[processTableEntry + 9] = sysCallNum;
+
+// Switching to kernel stack
+[processTableEntry + 13] = SP;
+SP = [processTableEntry + 11]*512 - 1;
+
+
+// NEWUSR
+if(sysCallNum == INT_NEWUSR) then
+  // If current user is not root or current process is not shell
+  if([SYSTEM_STATUS_TABLE] != ROOT || [SYSTEM_STATUS_TABLE + 1] != SHELL_PROCESS) then
+    [retAddr] = -2;
+    // Returning to user process
+    [processTableEntry + 9] = 0;
+    SP = [processTableEntry + 13];
+    ireturn;
+  endif;
+
+  // Checking if user already exists
+  R6 = 0;
+  while(R6 < MAX_USER_NUM) do
+    // arg1 is username
+    if([USER_TABLE + 2*R6] == arg1) then
+      [retAddr] = -1;
+      // Returning to user process
+      [processTableEntry + 9] = 0;
+      SP = [processTableEntry + 13];
+      ireturn;
+    endif;
+    R6 = R6 + 1;
+  endwhile;
+
+  // Searching for free entry
+  R6 = 0;
+  while(R6 < MAX_USER_NUM) do
+    if([USER_TABLE + 2*R6] == -1) then
+      break;
+    endif;
+    R6 = R6 + 1;
+  endwhile;
+
+  // If no free entry
+  if(R6 == MAX_USER_NUM) then
+    [retAddr] = -3;
+    // Returning to user process
+    [processTableEntry + 9] = 0;
+    SP = [processTableEntry + 13];
+    ireturn;
+  endif;
+
+  alias userId R6;
+
+  encrypt arg2; // password
+
+  // Adding user entry
+  [USER_TABLE + 2*userId] = arg1; // Username
+  [USER_TABLE + 2*userId + 1] = arg2; // Password
+
+  [retAddr] = 0;
+  // Returning to user process
+  [processTableEntry + 9] = 0;
+  SP = [processTableEntry + 13];
+  ireturn;
+endif;
+
+
+// REMUSR
+if(sysCallNum == INT_REMUSR) then
+  // If current user is not root or current process is not shell
+  if([SYSTEM_STATUS_TABLE] != ROOT || [SYSTEM_STATUS_TABLE + 1] != SHELL_PROCESS) then
+    [retAddr] = -2;
+    // Returning to user process
+    [processTableEntry + 9] = 0;
+    SP = [processTableEntry + 13];
+    ireturn;
+  endif;
+
+  // If user to remove is root or kernel
+  if(arg1 == "kernel" || arg1 == "root") then
+    [retAddr] = -2;
+    // Returning to user process
+    [processTableEntry + 9] = 0;
+    SP = [processTableEntry + 13];
+    ireturn;
+  endif;
+
+  // Searching for user
+  R6 = 0;
+  while(R6 < MAX_USER_NUM) do
+    if([USER_TABLE + 2*R6] == arg1) then
+      break;
+    endif;
+    R6 = R6 + 1;
+  endwhile;
+
+  // If not match
+  if(R6 == MAX_USER_NUM) then
+    [retAddr] = -1;
+    // Returning to user process
+    [processTableEntry + 9] = 0;
+    SP = [processTableEntry + 13];
+    ireturn;
+  endif;
+
+  alias userId R6;
+
+  // Checking if there are files with this user as owner
+  R7 = 0;
+  while(R7 < MAX_FILE_NUM) do
+    if([ROOT_FILE + R7*8 + 3] == arg1) then
+      [retAddr] = -3;
+      // Returning to user process
+      [processTableEntry + 9] = 0;
+      SP = [processTableEntry + 13];
+      ireturn;
+    endif;
+    R7 = R7 + 1;
+  endwhile;
+
+  [USER_TABLE + userId*2] = -1;
+  [USER_TABLE + userId*2 + 1] = -1;
+
+  [retAddr] = 0;
+  // Returning to user process
+  [processTableEntry + 9] = 0;
+  SP = [processTableEntry + 13];
+  ireturn;
+endif;
+
+
+// SETPWD
+if(sysCallNum == INT_SETPWD) then
+  // If current process is not shell
+  if([SYSTEM_STATUS_TABLE + 1] != SHELL_PROCESS) then
+    [retAddr] = -1;
+    // Returning to user process
+    [processTableEntry + 9] = 0;
+    SP = [processTableEntry + 13];
+    ireturn;
+  endif;
+
+  // Searching for user
+  R6 = 0;
+  while(R6 < MAX_USER_NUM) do
+    if([USER_TABLE + 2*R6] == arg1) then
+      break;
+    endif;
+    R6 = R6 + 1;
+  endwhile;
+
+  // If not match
+  if(R6 == MAX_USER_NUM) then
+    [retAddr] = -2;
+    // Returning to user process
+    [processTableEntry + 9] = 0;
+    SP = [processTableEntry + 13];
+    ireturn;
+  endif;
+
+  alias userId R6;
+
+  // If user id of current process is not equal to userId
+  if([PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 3] != userId) then
+    // If current user is not root
+    if([SYSTEM_STATUS_TABLE] != ROOT) then
+      [retAddr] = -21;
+      // Returning to user process
+      [processTableEntry + 9] = 0;
+      SP = [processTableEntry + 13];
+      ireturn;
+    endif;
+  endif;
+
+  encrypt arg2;
+
+  // Setting new password
+  [USER_TABLE + userId*2 + 1] = arg2;
+
+  [retAddr] = 0;
+  // Returning to user process
+  [processTableEntry + 9] = 0;
+  SP = [processTableEntry + 13];
+  ireturn;
+endif;
+
+// GETUID
+if(sysCallNum == INT_GETUID) then
+  R6 = 0;
+  while(R6 < MAX_USER_NUM) do
+    if([USER_TABLE + 2*R6] == arg1) then
+      [retAddr] = R6;
+      // Returning to user process
+      [processTableEntry + 9] = 0;
+      SP = [processTableEntry + 13];
+      ireturn;
+    endif;
+    R6 = R6 + 1;
+  endwhile;
+
+  [retAddr] = -1;
+  // Returning to user process
+  [processTableEntry + 9] = 0;
+  SP = [processTableEntry + 13];
+  ireturn;
+endif;
+
+// GETUNAME
+if(sysCallNum == INT_GETUNAME) then
+  if(arg1 < 0 || arg1 >= MAX_USER_NUM) then
+    [retAddr] = -1;
+    // Returning to user process
+    [processTableEntry + 9] = 0;
+    SP = [processTableEntry + 13];
+    ireturn;
+  endif;
+
+  if([USER_TABLE + arg1*2] == -1) then
+    [retAddr] = -1;
+    // Returning to user process
+    [processTableEntry + 9] = 0;
+    SP = [processTableEntry + 13];
+    ireturn;
+  endif;
+
+  [retAddr] = [USER_TABLE + arg1*2];
+  // Returning to user process
+  [processTableEntry + 9] = 0;
+  SP = [processTableEntry + 13];
+  ireturn;
+endif;

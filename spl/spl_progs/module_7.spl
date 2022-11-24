@@ -10,6 +10,10 @@ loadi(64,14);
 loadi(65,7);
 loadi(66,8);
 
+// Loading shell program
+loadi(67,9);
+loadi(68,10);
+
 // Loading even_num program
 loadi(85,69);
 
@@ -50,6 +54,10 @@ loadi(23,36);
 loadi(24,37);
 loadi(25,38);
 
+// Loading INT 12 - Logout
+loadi(26,39);
+loadi(27,40);
+
 // Loading INT 13 - Semget, Semrelease
 loadi(28,41);
 loadi(29,42);
@@ -61,6 +69,14 @@ loadi(31,44);
 // Loading INT 15 - Shutdown
 loadi(32,45);
 loadi(33,46);
+
+// Loading INT 16 - Newusr, Remusr, Setpwd, Getuname, Getuid
+loadi(34,47);
+loadi(35,48);
+
+// Loading INT 17 - Login
+loadi(36,49);
+loadi(37,50);
 
 // Loading INT - Exception
 loadi(2, 15);
@@ -108,11 +124,11 @@ loadi(51,64);
 loadi(59,3);
 loadi(60,4);
 
-// Loading root file
-loadi(62,5);
-
 // Loading disk free list
 loadi(61, 2);
+
+// Loading root file
+loadi(62,5);
 
 
 
@@ -120,55 +136,102 @@ loadi(61, 2);
 // Page table setup
 alias temp R0;
 temp = PAGE_TABLE_BASE + 20;
+
+R7 = 0;
+while(R7 < 10) do
+  [temp + 2*R7] = -1;
+  [temp + 2*R7 + 1] = "0000";
+  R7 = R7 + 1;
+endwhile;
+
 // Library
 [temp + 0] = 63;
 [temp + 1] = "0100";
 [temp + 2] = 64;
 [temp + 3] = "0100";
 
-// Heap
-[temp + 4] = 78;
-[temp + 5] = "0110";
-[temp + 6] = 79;
-[temp + 7] = "0110";
-
 // Code
 [temp + 8] = 65;
 [temp + 9] = "0100";
-[temp + 10] = 66;
-[temp + 11] = "0100";
-[temp + 12] = -1;
-[temp + 13] = "0000";
-[temp + 14] = -1;
-[temp + 15] = "0000";
 
 // Stack
-[temp + 16] = 76;
+[temp + 16] = 66;
 [temp + 17] = "0110";
-[temp + 18] = 77;
-[temp + 19] = "0110";
 
 // Process table setup for init process
 temp = PROCESS_TABLE + 16;
 [temp + 1] = 1;
 [temp + 3] = 1; // User id
 [temp + 4] = CREATED;
-[temp + 11] = 80;
+[temp + 11] = 77;
 [temp + 12] = 0;
 [temp + 13] = 8*512;
 [temp + 14] = PAGE_TABLE_BASE + 20;
 [temp + 15] = 10;
 
-// Disk map table setup for init process
+// Setting per process resource table
+R7 = 0;
+while(R7 < 8) do
+  [77*512 + 510 - R7*2] = -1;
+  R7 = R7 + 1;
+endwhile;
+
+// Set entry point IP value from header of INIT process to top of user stack
+[66 * 512] = [65*512 + 1];
+
+// SETTING UP SHELL PROCESS
+// Page table setup
+temp = PAGE_TABLE_BASE + 40;
+
+R7 = 0;
+while(R7 < 10) do
+  [temp + 2*R7] = -1;
+  [temp + 2*R7 + 1] = "0000";
+  R7 = R7 + 1;
+endwhile;
+
+// Library
+[temp + 0] = 63;
+[temp + 1] = "0100";
+[temp + 2] = 64;
+[temp + 3] = "0100";
+
+// Code
+[temp + 8] = 67;
+[temp + 9] = "0100";
+[temp + 10] = 68;
+[temp + 11] = "0100";
+
+// Stack
+[temp + 16] = 78;
+[temp + 17] = "0110";
+[temp + 18] = 79;
+[temp + 19] = "0110";
+
+// Process table setup for init process
+temp = PROCESS_TABLE + 32;
+[temp + 1] = 2; // pid
+[temp + 2] = 1; // ppid
+[temp + 3] = 1; // User id
+[temp + 4] = TERMINATED;
+[temp + 11] = 80;
+[temp + 12] = 0;
+[temp + 13] = 8*512;
+[temp + 14] = PAGE_TABLE_BASE + 40;
+[temp + 15] = 10;
+
+// Disk map table setup for shell process
 // Setting up disk map table
-[DISK_MAP_TABLE + 10 + 2] = -1;
-[DISK_MAP_TABLE + 10 + 3] = -1;
-[DISK_MAP_TABLE + 10 + 4] = 7;
-[DISK_MAP_TABLE + 10 + 5] = 8;
-[DISK_MAP_TABLE + 10 + 6] = -1;
-[DISK_MAP_TABLE + 10 + 7] = -1;
-[DISK_MAP_TABLE + 10 + 8] = -1;
-[DISK_MAP_TABLE + 10 + 9] = -1;
+
+temp = DISK_MAP_TABLE + 20;
+R7 = 0;
+while(R7 < 10) do
+  [temp + R7] = -1;
+  R7 = R7 + 1;
+endwhile;
+
+[DISK_MAP_TABLE + 20 + 4] = 9;
+[DISK_MAP_TABLE + 20 + 5] = 10;
 
 // Setting per process resource table
 R7 = 0;
@@ -177,8 +240,8 @@ while(R7 < 8) do
   R7 = R7 + 1;
 endwhile;
 
-// Set entry point IP value from header of INIT process to top of user stack
-[76 * 512] = [65*512 + 1];
+// Set entry point IP value from header of shell process to top of user stack
+[78 * 512] = [67*512 + 1];
 
 
 // Setting all other processes to terminated
@@ -206,7 +269,7 @@ i = 0;
 alias freeMem R0;
 freeMem = 0;
 while(i < 128) do
-  if(i >= 83 && i <= 127) then
+  if(i >= 81 && i <= 127) then
     [MEMORY_FREE_LIST + i] = 0;
     freeMem = freeMem + 1;
   else
